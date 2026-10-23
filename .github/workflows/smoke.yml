@@ -14,3 +14,5 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -e .
       - run: python -m unittest discover -s tests -v
+      - run: python scripts/validate_research_ideas.py --trials 10000
+      - run: python scripts/validate_larger_scale.py --roots 10000 --variants-per-root 10 --output runs/ci-scale-validation

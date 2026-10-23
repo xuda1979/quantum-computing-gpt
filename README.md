@@ -13,10 +13,24 @@ The adapter generates **answers** during rollout. It does not get to choose its 
 - A deterministic exact one-qubit circuit task generator and global-phase-aware verifier.
 - Root-disjoint split assignment for train, development, and test records.
 - A CPU-only low-rank adapter smoke test that trains, saves, reloads, rolls out, and verifies all 16 generated gate-pair cases.
+- Executable property checks for the proposed interval-based GRPO surrogate bound, its equal-length `lambda=0` degeneration, and a phase-sensitive coherent-control witness.
+- A deterministic 100,000-record synthetic corpus stress runner for generation, root splitting, exact verification, JSONL write/read, and task-contract checks.
 - Optional supervised Qwen LoRA training and verified adapter rollout entry points for an environment with the model, PyTorch, Transformers, PEFT, and a supported accelerator.
 - The English research specification in Markdown and Word formats.
 
 The smoke adapter is a small NumPy low-rank classifier used to validate training, serialization, and verifier orchestration. It does **not** fine-tune a language model and does not establish quantum-reasoning gains. The current workspace has no PyTorch, Transformers, PEFT, Qwen checkpoint, or accelerator runtime, so target-model training must be run and tested in the actual training environment.
+
+## Reproduce validation and scale checks
+
+```bash
+python -m unittest discover -s tests -v
+python scripts/validate_research_ideas.py --trials 10000
+python scripts/validate_larger_scale.py \
+  --roots 10000 --variants-per-root 10 \
+  --output runs/scale-validation
+```
+
+The scale runner uses synthetic one-qubit circuits with inserted identity pairs. It tests harness data plumbing and exact-verifier throughput; it does not represent realistic multi-qubit simulator load or distributed service capacity. Measured results and research limitations are in [the validation report](docs/RESEARCH_VALIDATION_REPORT.md). CI runs both the randomized property checks and the 100,000-record corpus check.
 
 ## Run the CPU smoke test
 
