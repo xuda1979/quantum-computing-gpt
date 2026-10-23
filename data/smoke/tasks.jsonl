@@ -1,0 +1,16 @@
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-I-I", "root_id": "root-00", "source_gates": ["I", "I"], "split": "train", "target_gates": [], "task_id": "smoke-00"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-I-X", "root_id": "root-01", "source_gates": ["I", "X"], "split": "train", "target_gates": ["X"], "task_id": "smoke-01"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-I-Z", "root_id": "root-02", "source_gates": ["I", "Z"], "split": "train", "target_gates": ["Z"], "task_id": "smoke-02"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-I-H", "root_id": "root-03", "source_gates": ["I", "H"], "split": "train", "target_gates": ["H"], "task_id": "smoke-03"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-X-I", "root_id": "root-04", "source_gates": ["X", "I"], "split": "train", "target_gates": ["X"], "task_id": "smoke-04"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-X-X", "root_id": "root-05", "source_gates": ["X", "X"], "split": "train", "target_gates": [], "task_id": "smoke-05"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-X-Z", "root_id": "root-06", "source_gates": ["X", "Z"], "split": "train", "target_gates": ["X", "Z"], "task_id": "smoke-06"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-X-H", "root_id": "root-07", "source_gates": ["X", "H"], "split": "train", "target_gates": ["H", "Z"], "task_id": "smoke-07"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-I", "root_id": "root-08", "source_gates": ["Z", "I"], "split": "train", "target_gates": ["Z"], "task_id": "smoke-08"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-X", "root_id": "root-09", "source_gates": ["Z", "X"], "split": "train", "target_gates": ["X", "Z"], "task_id": "smoke-09"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-Z", "root_id": "root-10", "source_gates": ["Z", "Z"], "split": "train", "target_gates": [], "task_id": "smoke-10"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-H", "root_id": "root-11", "source_gates": ["Z", "H"], "split": "train", "target_gates": ["H", "X"], "task_id": "smoke-11"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-I", "root_id": "root-12", "source_gates": ["H", "I"], "split": "train", "target_gates": ["H"], "task_id": "smoke-12"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-X", "root_id": "root-13", "source_gates": ["H", "X"], "split": "train", "target_gates": ["H", "X"], "task_id": "smoke-13"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-Z", "root_id": "root-14", "source_gates": ["H", "Z"], "split": "train", "target_gates": ["H", "Z"], "task_id": "smoke-14"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-H", "root_id": "root-15", "source_gates": ["H", "H"], "split": "train", "target_gates": [], "task_id": "smoke-15"}

@@ -1,0 +1,5 @@
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-X", "root_id": "root-09", "source_gates": ["Z", "X"], "split": "dev", "target_gates": ["X", "Z"], "task_id": "smoke-09"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-I", "root_id": "root-12", "source_gates": ["H", "I"], "split": "dev", "target_gates": ["H"], "task_id": "smoke-12"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-X", "root_id": "root-13", "source_gates": ["H", "X"], "split": "dev", "target_gates": ["H", "X"], "task_id": "smoke-13"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-Z", "root_id": "root-14", "source_gates": ["H", "Z"], "split": "dev", "target_gates": ["H", "Z"], "task_id": "smoke-14"}
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-H-H", "root_id": "root-15", "source_gates": ["H", "H"], "split": "dev", "target_gates": [], "task_id": "smoke-15"}

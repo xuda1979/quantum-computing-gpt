@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantum-qwen36-posttrain"
+version = "0.1.0"
+description = "Harness-first quantum post-training experiments and Qwen LoRA entry points"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+test = []
+qwen = [
+  "torch>=2.3",
+  "transformers>=4.51",
+  "peft>=0.15",
+  "safetensors>=0.4",
+]
+
+[project.scripts]
+qposttrain-smoke = "quantum_posttrain.smoke:main"
+qposttrain-generate = "quantum_posttrain.generator:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

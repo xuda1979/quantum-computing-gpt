@@ -1,0 +1,1 @@
+{"contract": "one_qubit_unitary_up_to_global_phase_v1", "family_id": "pair-Z-Z", "root_id": "root-10", "source_gates": ["Z", "Z"], "split": "test", "target_gates": [], "task_id": "smoke-10"}
