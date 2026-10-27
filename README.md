@@ -2,6 +2,10 @@
 
 Research code and engineering specifications for harness-verified quantum science and programming post-training of `Qwen/Qwen3.6-35B-A3B`.
 
+## Learning to clarify through research
+
+The [Learning to Clarify R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) proposes training Qwen3.6-35B-A3B to identify consequential knowledge gaps, investigate them through retrieval and executable checks, revise its understanding, and stop or abstain under a bounded budget. It defines the architecture, data curriculum, SFT and RL objectives, matched baselines, ablations, resource limits, and implementation gates. This is a proposed research direction; the iterative research loop and its training gains have not yet been implemented or demonstrated.
+
 ## Problem generation and rollout
 
 The harness owns task contracts, accepted roots, dataset splits, expected labels, and verification. It should produce the initial problems from explicit templates and licensed or reviewed roots. LLMs can propose new roots, variants, wording, candidate solutions, or repairs, but those are untrusted proposals until a trusted contract is reconstructed, the answer is independently verified, lineage and deduplication checks pass, and free-form wording receives semantic review.
