@@ -2,13 +2,15 @@
 
 Research and Engineering Specification for Qwen3.6-35B-A3B
 
-Version 3.0 • 30 October 2026 • Execution platform Future-Code
+Version 3.1 • 30 October 2026 • Execution platform Future-Code
 
 **Active scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](LEARNING_TO_CLARIFY_RD_PLAN.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
 
 ## 1 Objective and research thesis
 
 Develop a quantum science and programming model by post-training a pinned revision of `Qwen/Qwen3.6-35B-A3B`. Improve theoretical reasoning, executable quantum programs, cross-framework translation, circuit optimization, and research analysis while preserving general mathematics, programming, and tool use. The engineering sequence is trusted verification, matched base evaluation, diverse task construction, short-horizon RL cold start, multi-turn research RL, and bounded agent delegation with independent evaluation. Progress depends on evidence gates rather than a fixed calendar.
+
+The central capability thesis is that deliberately designed RL tasks, observations, actions, and independent feedback should teach reusable reasoning, insight, critical judgment, planning, and effective research. Preserve sufficient mathematical/scientific foundations while obtaining long-tail and changing facts through tools. The governing plan defines the capability/intervention matrix and the compact model's resource tradeoffs; these benefits require measurements rather than inference from size alone.
 
 The proposed research thesis is that **the unit of verification should be the semantic contract and the complete policy-update group**. A verifier should establish what a program means in its intended context, and the training system should acquire additional evidence where it can change or certify the group update. Verified failure witnesses can then define public training-task feedback and independent rewards across mathematical and programming representations, without imitation targets.
 
