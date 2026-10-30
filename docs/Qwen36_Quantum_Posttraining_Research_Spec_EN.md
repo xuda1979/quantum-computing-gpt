@@ -2,27 +2,29 @@
 
 Research and Engineering Specification for Qwen3.6-35B-A3B
 
-Version 2.0 • 22 October 2026 • Execution platform Future-Code
+Version 3.0 • 30 October 2026 • Execution platform Future-Code
+
+**Active scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](LEARNING_TO_CLARIFY_RD_PLAN.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
 
 ## 1 Objective and research thesis
 
-Develop a quantum science and programming model by post-training a pinned revision of `Qwen/Qwen3.6-35B-A3B`. Improve theoretical reasoning, executable quantum programs, cross-framework translation, circuit optimization, and research analysis while preserving general mathematics, programming, and tool use. The engineering sequence is trusted verification and independent evaluation, data construction, supervised fine-tuning, single-turn reinforcement learning, tool interaction, and zero-tool distillation. Progress depends on evidence gates rather than a fixed calendar.
+Develop a quantum science and programming model by post-training a pinned revision of `Qwen/Qwen3.6-35B-A3B`. Improve theoretical reasoning, executable quantum programs, cross-framework translation, circuit optimization, and research analysis while preserving general mathematics, programming, and tool use. The engineering sequence is trusted verification, matched base evaluation, diverse task construction, short-horizon RL cold start, multi-turn research RL, and bounded agent delegation with independent evaluation. Progress depends on evidence gates rather than a fixed calendar.
 
-The proposed research thesis is that **the unit of verification should be the semantic contract and the complete policy-update group**. A verifier should establish what a program means in its intended context, and the training system should acquire additional evidence where it can change or certify the group update. Verified failure witnesses can then become reusable supervision across mathematical and programming representations.
+The proposed research thesis is that **the unit of verification should be the semantic contract and the complete policy-update group**. A verifier should establish what a program means in its intended context, and the training system should acquire additional evidence where it can change or certify the group update. Verified failure witnesses can then define public training-task feedback and independent rewards across mathematical and programming representations, without imitation targets.
 
 This thesis yields three research candidates:
 
 1. **Verification allocation for certified group updates.** Allocate expensive checks using a computable bound on reward-induced surrogate uncertainty and the expected increase in certified coefficient magnitude. Use conservative, sign-certified group coefficients when evidence remains incomplete.
 2. **Contextual semantic challenges.** Train and evaluate on certified pairs in which an implementation is valid under one contract but fails under a stronger composition context. Measure transfer to unseen combinations of assumptions, contexts, and SDKs.
-3. **Witness transfer distillation.** Convert verified failures into typed mathematical witnesses and independently verified repairs, then test whether supervision transfers across representations and to zero-tool inference.
+3. **Witness transfer through RL.** Convert verified failures into typed witnesses and repair environments, then test whether fresh on-policy RL transfers across representations. Tool-disabled evaluation uses the same RL adapter and requires no distillation phase.
 
-The first candidate is the recommended primary algorithmic study. The second supplies the semantic benchmark and data mechanism. The third is an extension that merits a separate contribution claim only if controlled experiments show additional value. Three-track verification, ordinary GRPO, resource rewards, asynchronous workers, and successful-trace SFT remain engineering foundations with substantial prior art.
+These are optional studies subordinate to the active focus-and-research program in the governing R&D plan. Test verifier allocation separately from the inference-time focus policy. Three-track verification, group-based RL, resource rewards, and asynchronous workers have substantial prior art; they do not establish novelty by themselves.
 
 All three candidates are proposed methods. No model improvement, verifier speedup, publication acceptance, or scientific discovery is asserted in this specification. Analytical statements below have explicit assumptions; experimental targets are decisions to freeze before running the study. Deliverables from implementation must include loadable weights, reproducible code, data lineage, independent evaluation, cost accounts, and negative results.
 
 ### 1.1 Project boundary
 
-Keep quantum contracts, generators, verifiers, and evaluations in `quantum-gpt` or a project plugin. Future-Code remains a domain-neutral R&D platform responsible for dependencies, remote jobs, budgets, evidence, recovery, and scheduling. Audit and reuse existing components before implementing replacements. Retain the existing SAPO path as a comparator where it can be reproduced.
+Keep quantum contracts, generators, verifiers, and evaluations in `quantum-computing-gpt` or its project plugin. Future-Code remains a domain-neutral R&D platform responsible for dependencies, remote jobs, budgets, evidence, recovery, and scheduling. Audit and reuse existing components before implementing replacements. SAPO here means Soft Adaptive Policy Optimization. Audit any external implementation before using it; this repository's supervised Qwen trainer is not an implemented SAPO/RL path.
 
 The target model and the orchestration model are distinct: Future-Code may use external LLM APIs to manage the project, while the quantum model is the trainable artifact. Training requires an actual supported runtime and available accelerators. Historical Ascend capacity is a candidate deployment profile, not evidence of current availability. Credentials belong in secret references, outside datasets, reports, checkpoints, and source control.
 
@@ -39,7 +41,7 @@ The literature reviewed on 22 October 2026 already contains close precedents. Th
 | Range-GRPO [R5] | Reward intervals, pairwise uncertainty weighting, and the point-interval Dr. GRPO limit | Acquire executable evidence adaptively and certify signs relative to the exact mean-centered reward; compare using identical intervals |
 | MorphQ and MetaMorphQ [R6, R7] | Quantum metamorphic tests, transformations, and physics-based invariants | Study contract-changing contexts and certified failure witnesses, including transfer between theory and code |
 | Quantum compiler assurance survey [R8] | Semantic contracts, interface observations, and inconclusive evidence | Deliver and evaluate a training method and benchmark rather than claim contracts themselves are new |
-| AIR-OPD and Learning to Disprove [R9, R10] | Repair distillation and formally checked counterexample training | Isolate quantum witness selection and cross-representation transfer beyond ordinary repair or counterexample supervision |
+| AIR-OPD and Learning to Disprove [R9, R10] | Repair distillation and checked counterexample training in prior work | Isolate witness value through matched RL environments; their imitation/distillation phases are outside current scope |
 | Confidence sequences and multifidelity policy gradients [R11, R12] | Sequential uncertainty control and use of inexpensive simulation | Do not claim these foundations; distinguish bounded surrogate deviation from unbiased gradient estimation |
 
 Range-GRPO uses interval midpoint differences weighted by the combined uncertainty of each pair. Our proposed conservative coefficient instead abstains whenever the sign of the exact mean-centered advantage is unresolved. This changes the learning objective and can discard useful signal. Its benefit must therefore be demonstrated under equal evidence budgets, not inferred from conservatism. [R5]
@@ -197,7 +199,7 @@ An elementary compositional bound provides another oracle. If unitary implementa
 
 Split root algorithms, source theorems, seed ancestors, and witness schemas before generating variants. Include three distinct tests: new instances of known contexts, unseen context combinations, and transfer to an SDK or representation excluded from a specific training slice. Report these separately. Holding out a framework is a deliberate subexperiment, not a reason to omit ordinary multi-framework training from the main model.
 
-Compare ordinary random augmentation, MorphQ-style invariance augmentation, contextual positive pairs alone, positive plus certified negative pairs, and the full curriculum. Match unique roots, target tokens, teacher calls, and verification cost. Hold out mutation templates as well as numerical parameters to test whether the model learns the underlying obligation.
+Compare ordinary random augmentation, MorphQ-style invariance augmentation, contextual positive pairs alone, positive plus certified negative pairs, and the full RL curriculum. Match unique roots, rollout/update tokens, task-generation effort, and verification cost. Hold out mutation templates as well as numerical parameters to test whether the model learns the underlying obligation.
 
 The primary benchmark metric is **paired semantic accuracy**: both the ordinary-context task and its changed-context task must be answered correctly. Report the fraction of a root's contexts solved together, failure-witness validity, false rejection of valid implementations, and circuit cost conditional on correctness. Root-level macro averages prevent a prolific generator from dominating the score.
 
@@ -205,48 +207,31 @@ A useful publication result would show fewer accepted semantic failures and bett
 
 Coherent-control challenges use known circuit descriptions with a declared phase reference. They do not assume that an arbitrary unknown black-box unitary can be turned into a controlled unitary. Include independently adjudicated real SDK or compiler failures alongside generated mutants, and report valid-case retention to expose overly aggressive rejection.
 
-## 5 Research candidate three Witness transfer distillation
+## 5 Research candidate three Witness transfer through RL
 
-### 5.1 Data object and mechanism
+### 5.1 Witness environments
 
-A failure witness is a small, checkable object that refutes a specific candidate under a specified contract. Examples include a state-preparation circuit and observable, a wire permutation, an ancilla reuse context, a finite-dimensional matrix counterexample, or a Lean-checked assignment satisfying all current assumptions and falsifying the claimed conclusion. A removed-assumption task uses its amended contract; violating an assumption does not refute the original conditional theorem. The witness contains a contract hash, candidate hash, witness program, observed discrepancy or proof, verification method, and scope.
+A witness is a checkable refutation of a candidate under a specified contract, with contract/candidate hashes, witness program or proof, observed discrepancy, verifier, and scope. Examples include a controlled-phase context, wire map, ancilla-reuse context, or finite-dimensional counterexample.
 
-The proposed mechanism uses the same underlying failure in multiple representations. A controlled-phase defect can produce a matrix identity question, a theorem/counterexample task, and repairs in two SDKs. The witness supplies the relation between these views. It is not merely an extra paragraph explaining an error.
+Collect genuine failures on training roots, independently replay their witnesses, and reduce them with a recorded bounded procedure. Call a witness reduced rather than minimal unless minimality is proved. Build related mathematical and SDK tasks with explicit, freshly verified transformations. Keep failed attempts and lineage.
 
-Create training views as follows:
-
-1. Collect a real failed candidate from the current policy on a training root. Obtain a trusted witness and independently replay it.
-2. Reduce the witness using bounded delta debugging or certified simplification. Record the reduction procedure; call it reduced rather than globally minimal unless minimality is proved.
-3. Generate and verify a repaired implementation and a concise explanation of the violated obligation. Keep all unsuccessful attempts and provenance.
-4. Produce related mathematical and SDK tasks from the same root, with explicit transformations and fresh verification. Do not copy a witness into an unrelated task merely because the error label matches.
-5. Generate a new successful target from the original public problem. Tool-derived facts remain traceable in metadata; the final target must be independently checkable and must not depend on hidden test inputs unavailable at inference.
-6. Train on a controlled mixture of successful targets, witness-construction tasks, and repairs. Follow with zero-tool RLVR if it adds measurable value.
-
-An explanation may summarize a tool-discovered fact accurately. It must not fabricate an internal discovery process, invent experiments, or claim that a verifier observation was known before the call. Use accessible solutions, proof terms, concise derivations, and real tool traces; no inaccessible private reasoning is required.
+Supply only permitted public feedback to new on-policy repair or witness-construction episodes. Do not create successful-answer targets for cross-entropy, preference optimization, or trace/logit distillation. Privileged final-test inputs never enter the actor context. A changed assumption defines a different problem rather than a refutation of the original theorem.
 
 ### 5.2 Experimental separation
 
-Compare final-answer-only SFT, generic compiler feedback, natural-language repair guidance, checked semantic witnesses, and checked witnesses with cross-representation views. AIR-OPD-style guidance is a direct comparator. Formal counterexample supervision must be compared with the relevant expert-iteration approach rather than presented as new by itself. [R9, R10]
+Compare outcome-only RL, generic compiler-feedback RL, checked-witness RL, and checked witnesses with cross-representation tasks. Match roots, rollout/update tokens, feedback exposure, teacher/task-generation effort, and verifier cost. Add shuffled-witness and no-reduction controls. The cited repair/distillation work is prior art [R9, R10], not an instruction to add those training phases.
 
-Match the number of successful targets, their lengths, unique roots, teacher tokens, and verifier budget. Add shuffled-witness, no-reduction, and random-neighbor controls. These controls separate useful witness information from additional teacher effort, data volume, or success selection. If teacher and student tokenizers differ, use sequence-level targets unless a separate valid alignment is implemented.
+Freeze root- and witness-schema-disjoint evaluation before constructing views. Measure valid counterexamples, defect recurrence, and theory-to-code/code-to-theory transfer. New wording of the same failure is not independent transfer.
 
-Freeze a root-disjoint and witness-schema-disjoint evaluation before generating training views. Measure first-attempt Pass@1 without tools, recurrence of each defect class, valid counterexample rate, and transfer from theory supervision to coding and from coding supervision to theory. Also report the total training cost per percentage-point gain.
+### 5.3 Tool-disabled diagnostic
 
-A useful result requires improvement over success-only SFT and comparable repair guidance on unseen families. Improvement only on rewritten versions of the same failure does not establish transferable understanding. The student is not required to reproduce every intermediate teacher action.
-
-### 5.3 Measuring search transfer
-
-Report absolute scores for the base zero-tool model, the tool agent, and the distilled zero-tool model. Define retained incremental gain as:
-
-`retention = (S_distilled_zero_tool - S_base_zero_tool) / (S_agent - S_base_zero_tool)`.
-
-The ratio is undefined when the denominator is nonpositive. Negative values and values above one must remain visible. Compare under explicit generation and tool budgets, and separately report total training cost. The earlier 92% figure is an optional exploratory target, not a promised outcome.
+Report untouched base and the same RL adapter both with and without the identical research harness. This diagnoses unaided transfer and tool dependence without training a separate distilled model. The intended deployment permits research tools; zero-tool memorization is not a promotion prerequisite.
 
 ## 6 Publication study and claim discipline
 
-### 6.1 Primary study
+### 6.1 Optional verifier-allocation study
 
-The recommended paper question is: **Can executable evidence acquired for a complete group update reduce quantum post-training verification cost without sacrificing independently measured semantic correctness?** Use contextual tasks to expose failures that easy syntax or output-distribution tests miss. Begin on small exact circuits and fixed statistical QEC tasks, where reference outcomes can be adjudicated, before extending to symbolic proofs or approximate dynamics.
+For the optional verifier-allocation paper, the question is: **Can executable evidence acquired for a complete group update reduce quantum post-training verification cost without sacrificing independently measured semantic correctness?** The governing plan's focus-and-research RL study remains the project priority. Use contextual tasks to expose failures that easy syntax or output-distribution tests miss. Begin on small exact circuits and fixed statistical QEC tasks, where reference outcomes can be adjudicated, before extending to symbolic proofs or approximate dynamics.
 
 The paper should contain a precise algorithm, the two supporting propositions with assumptions, reproducible verifier interfaces, the contextual benchmark, a cost-accounted replay experiment, and an end-to-end post-training study. A larger model alone is an application choice. Add a smaller model for accessible reproduction if resources allow, while retaining the requested Qwen model as the main engineering target.
 
@@ -254,8 +239,8 @@ The paper should contain a precise algorithm, the two supporting propositions wi
 | --- | --- | --- |
 | Verifier replay | Same candidates, contracts, available observation streams, and total budget | Cost versus reference correctness; bound validity; coverage and abstention |
 | Coefficient by allocator factorial | Same initial information and evidence budget; identical attained intervals within each allocator | Separate contribution of coefficients and scheduling |
-| Context challenge curriculum | Same roots, target tokens, and teacher budget | Paired correctness on unseen contracts and compositions |
-| Witness transfer | Same successful targets and feedback budget | First-attempt gain on held-out witness families and representations |
+| Context challenge curriculum | Same roots, rollout/update tokens, and task-generation budget | Paired correctness on unseen contracts and compositions |
+| Witness transfer | Matched on-policy exposure and feedback budget | First-attempt gain on held-out witness families and representations |
 | End-to-end system | Same model, prompt, decoding, and deployment budget | Science and coding gains with general-capability guardrails |
 | Runtime scaling | Same workload and evidence contract | Useful throughput, queue latency, staleness, restart behavior, and total cost |
 
@@ -278,7 +263,7 @@ At least three training seeds are a proposed starting point, subject to the budg
 | Better verification efficiency | Lower measured total verification cost at matched accuracy and coverage | General superiority from a faster easy-task subset |
 | Safer training coefficients | Valid simultaneous coverage and fewer incorrect nonzero signs | Unbiased gradients or guaranteed learning improvement |
 | Better contextual semantics | Higher paired accuracy on unseen root/context combinations | General quantum reasoning from familiar mutants |
-| Transferable witnesses | Gains beyond matched repair guidance across held-out representations | A new distillation paradigm from ordinary successful-trace SFT |
+| Transferable witnesses | RL gains beyond matched repair feedback across held-out representations | Universal discovery or transfer from rewritten versions of one failure |
 | Better quantum model | Separate science and coding gains over a matched official baseline | Broad scientific improvement from one SDK benchmark |
 
 Prepare plots only from measured results: cost–accuracy frontiers, coverage versus confidence budget, predicted versus observed surrogate discrepancy, per-family semantic errors, ablations, and training stability. Mark unrun cells `NOT MEASURED`. No performance chart should be populated with a guessed response to group size or reward weight.
@@ -430,9 +415,9 @@ Use two reviews for paper formalization: fidelity of the formal statement to the
 
 ### 10.4 Scale and sampling
 
-Start with roughly 2,000 verified tasks across at least 100 roots or families, audit them, and expand toward 5,000–20,000 SFT examples. These are starting design targets, not quotas to satisfy by duplicating data. The original 500k circuit, 150k code, and 30k theorem targets sum to 680k and remain optional scale goals.
+Start with the governing plan's 120-root development pilot and work toward 2,000 independently reviewed training roots. Expand only when measured structural coverage, useful reward signal, and compute justify it. Count unique roots separately from variants and rollout trajectories; duplicated prompts do not satisfy a diversity target.
 
-An initial SFT mixture may allocate 30% to science and counterexamples, 25% to code generation, 20% to repair and translation, 15% to circuits and topology, and 10% to general retention. Record unique roots and sampled views separately. Begin teacher rejection sampling at two to four attempts per task and expand only where pass rates and marginal value justify the cost. Teacher confidence and explanation length are not correctness labels.
+Use the governing plan's initial RL task mixture and development-only curriculum decisions. Teachers may propose tasks, public source material, or evaluator rubrics after independent admission; do not fit their answers, traces, or logits. Fresh policy rollouts include failures. Teacher confidence and explanation length are not correctness labels.
 
 ### 10.5 Split before transformation
 
@@ -440,25 +425,23 @@ Split source documents, theorem families, algorithm skeletons, seed ancestors, a
 
 Audit raw hashes, normalized ASTs, text similarity, circuit ancestry, theorem dependencies, parameter ranges, and caches. Quarantine unresolved overlap. The manifest must close both accounting identities: `input = accepted + rejected + processing_failed`, and `unique accepted = train + dev + validation + sealed_test` for disjoint partitions. Looking at a sealed test consumes it for further adaptive development; use a new version for subsequent confirmatory claims.
 
-## 11 Supervised fine tuning
+## 11 RL-only readiness and cold start
 
-Diagnose knowledge gaps, reasoning errors, API errors, formatting failures, and unsupported verification separately. Use targeted SFT first for interface and code problems. If persistent scientific knowledge gaps dominate, test a small knowledge-SFT or continued-pretraining branch with general-data retention. Large-scale continued pretraining is not a mandatory prerequisite.
+Start from the official post-trained checkpoint with a fresh adapter and frozen base/router weights. There is no additional project SFT, knowledge pretraining, demonstration replay, or distillation phase. The existing supervised trainer is a legacy utility and cannot satisfy the RL gate.
 
-Targets follow the task: source files or code for programming, a proof body for Lean, and conclusions, assumptions, necessary derivations, and evidence for scientific questions. Use structured wrappers only when a machine interface needs them. Task-appropriate self-checks address operator relations, dimensions and wire maps, phase semantics, and resources. They must yield checkable statements; simple tasks do not require long reasoning blocks.
+Measure base tool compliance and success by family. Begin with short, solvable, independently verified training tasks and complete on-policy groups. If rewards are constant, diagnose task validity, API/environment mismatch, source access, parsing, and reasoning difficulty. Simplify training contracts or decompose them into checkable subproblems; record and progressively remove public hints. Never change sealed evaluation tasks to improve reward.
 
-| Parameter | Initial candidate | Selection rule |
+| Item | Initial candidate | Gate |
 | --- | --- | --- |
-| Precision and adaptation | BF16 with LoRA rank 16 or 32 | Pass actual load, gradient, save, and reload gates |
-| Learning rate | Small grid from 2e-5 to 1e-4 | Development gain and retention, not loss alone |
-| Microbatch | 1 per device initially | Measured memory and sequence packing |
-| Effective batch | Approximately 32 complete samples initially | Record global token count and parallelism |
-| Sequence limits | 4k input plus 4k output | Include template overhead and reject incomplete targets |
-| Loss mask | Target tokens only | Exclude prompt, padding, and tool-output tokens |
-| Checkpoint selection | Frozen development metrics and guardrails | Validate family transfer before expanding steps |
+| Adaptation | Discovered attention-projection LoRA targets, rank 8/16 | Actual gradient, save, reload, and adapter-disabled checks |
+| Base/router | Frozen | Trainable-parameter audit and retention diagnostics |
+| RL learning rate | Small development-selected grid | Independent loss audit and useful development gains |
+| Group and updates | G=4, one optimizer update per complete group | Full behavior-policy identity and consumption record |
+| Actor mask | Generated actor tokens only | Exclude prompts, observations, padding, foreign workers; independent span audit |
+| Curriculum | Short derivation/circuit/tool tasks before research episodes | Nonzero reward support and fixed family monitoring |
+| Checkpoint | Adapter, optimizer, scheduler, RNG, sampler/cursor | Fresh-process resume without duplicate group consumption |
 
-QLoRA requires separate quantization, kernel, and reload validation on the target hardware. Do not assume CUDA-specific quantization support on Ascend. If the model fits a tiny training set but fails new families, inspect coverage and labels before extending training.
-
-The proposed SFT gate requires at least 98% interface compliance, nonzero success in the supported task families, a development improvement over the matched base model, and passing retention checks. Interface compliance alone does not make advanced RL tasks learnable. Set curriculum difficulty using measured success rates.
+Quantization, expert adapters, full-parameter RL, and asynchronous rollout require separate target-runtime and capacity evidence. Passing interface syntax does not prove learnability. If a family remains unsolved after valid scaffolding and diagnosis, record the limitation rather than silently adding supervised training.
 
 ## 12 Reward contract and baseline reinforcement learning
 
@@ -491,7 +474,7 @@ Use a versioned Dr. GRPO-style objective with a separately specified reference K
 
 `L = -Σ_i,t m_it min(ρ_it A_i, clip(ρ_it,1-ε,1+ε) A_i)/(G L_cap) + β KL_ref`.
 
-The initial reference KL is the full-vocabulary divergence `KL(π_θ(.|h)||π_ref(.|h))`, averaged over valid generated-token histories h from the behavior rollouts. Freeze the SFT reference checkpoint and its hash. Reference probabilities, histories, rewards, advantages, and behavior log probabilities are detached; current-policy probabilities retain gradients. Chunk vocabulary computation if needed and verify the global sum.
+The initial reference KL is the full-vocabulary divergence `KL(π_θ(.|h)||π_ref(.|h))`, averaged over valid generated-token histories h from the behavior rollouts. Freeze the untouched official reference checkpoint and its hash; ensure no adapter is active on the reference. Reference probabilities, histories, rewards, advantages, and behavior log probabilities are detached; current-policy probabilities retain gradients. Chunk vocabulary computation if needed and verify the global sum.
 
 This KL regularizes sampled histories; it is not asserted to equal KL between full current-policy trajectory distributions. A sampled approximation requires a new objective contract with its sampling law and gradient treatment. Constant rewards make the policy-reward term zero, while KL can still generate gradients. Test the total zero-gradient case separately with β=0.
 
@@ -511,7 +494,7 @@ Use a curriculum from basic operators and small exact circuits to multi-framewor
 
 Track generated and trained tokens, reward variance, zero-signal groups, entropy, KL, clipping fraction, gradients, adapter changes, truncation, family success, and cost per effective update. Stop on nonfinite losses or persistent absent parameter updates. Candidate initial alarms include truncation above 5%, VOID above 2%, and excessive stale-group rejection; freeze the windows and thresholds after the canary.
 
-Three planned evaluations without meaningful development improvement trigger diagnosis rather than automatic extension. Compare SAPO and GRPO under the same SFT start, data, token budget, and verification contract if the existing SAPO implementation is usable. Keep the path supported by evidence.
+Three planned evaluations without meaningful development improvement trigger diagnosis rather than automatic extension. Compare SAPO and the clipped control from the same official initialization with matched data, token budget, and verification contract, after validating the actual implementation. Keep the path supported by evidence.
 
 ## 13 Asynchronous execution and recovery
 
@@ -563,27 +546,29 @@ Use persistent job identities and structured launch/status/cancel/resume results
 
 Progress means optimizer steps, consumed tokens, complete checkpoints, and valid evaluations. A heartbeat proves only liveness. Diagnose zero progress using stack traces, queues, communication, and storage before retrying. Report rollout throughput, verifier latency, learner throughput, wait time, replay cost, stale rejection, and total cost. Define hardware utilization and MFU separately; report MFU as unknown when the MoE FLOP accounting is unreliable.
 
-## 14 Tool interaction and zero tool execution
+## 14 Multi-turn research and bounded agents
 
-Enable tool RL only after the single-turn model and verifier lifecycle work. Begin with bounded `compile`, `simulate`, `check_proof`, and `inspect_signature` calls. Start at three calls and evaluate a five-call budget separately. Tools expose public diagnostics and authorized feedback, while the final judge keeps hidden tests and reference answers private. Truncate irrelevant paths and outputs and preserve tool provenance.
+After the short-horizon lifecycle, extend RL to search/read, compile, simulate, proof checks, and evidence-linked revisions. Use the governing plan's typed actions, shared budgets, and independent final evaluator. Public diagnostics never expose hidden test answers.
 
-Use terminal correctness with a small call cost that preserves a gap between success and failure; for example, successful episodes remain at least 0.9 and failed episodes at most 0.2. Define a separate episode objective: average clipped action-token terms within each episode and then average equally across G episodes. Use terminal reward minus the group mean and the same explicit reference-KL definition on action histories. Tool feedback is context, not a target for policy loss.
+Use terminal correctness with cost penalties that preserve a success/failure gap. Average eligible actor-token terms within an episode, then average equally across complete groups. Keep tool observations as context but exclude them from actor loss. Version this objective separately from the fixed-cap single-turn control and compare length bias.
 
-This episode normalization differs from the fixed-cap single-turn objective and requires a length-bias comparison. A discount such as 0.9 is an optional ablation with explicitly defined turn returns; do not add the final success reward repeatedly at every turn.
+Start with one trainable coordinator and fixed workers shared by candidate and control. Later all-role training requires token ownership, behavior probabilities, and policy revisions for every trained actor. No recursive spawning occurs initially. Charge all workers, summaries, retries, tools, and failures to the same aggregate budget.
 
-Preserve full tool transcripts and unsuccessful attempts. Distillation uses independently checked successful targets and, in the research branch, verified witness views. At zero-tool evaluation the model receives no runtime verifier or repair feedback. Offline scoring after completion is allowed and must be distinguished from inference-time tool access. Match total tokens, tool calls, and wall time when comparing base and trained agents.
+Keep authentic transcripts and failures. Witnesses define feedback/environments for fresh RL, not imitation targets. Tool-disabled scoring uses the same RL adapter and supplies no runtime repair feedback. Native benchmark scores and tool-enabled variants are separate.
 
 ## 15 Independent evaluation and promotion
 
 ### 15.1 Matched baselines
 
-Evaluate official weights, a prompt-matched official model, the existing project candidate after identity verification, SFT, single-turn RL, the tool model, and the distilled zero-tool model. The primary control `B_matched` uses the official pinned weights with the same prompt, template, reasoning mode, decoding, length, and tool budget as the candidate. A weaker raw prompt is an additional control only.
+Use the governing plan's base/adapter matrix: direct, one-pass retrieval, single-agent research, bounded delegation, and oracle permitted evidence. Base means the same untouched official checkpoint. Authenticate any preexisting project adapter before treating its historical score as comparable.
 
-Run a separate base/candidate × no-augmentation/same-augmentation comparison for RAG or tools. Public repository examples are development regressions; they cannot substitute for a new sealed benchmark. Keep proprietary or external-teacher comparisons separate from the causal post-training comparison.
+Match prompt/template, reasoning mode, decoding, source/index, workers, active context, aggregate tokens/tools/time, and evaluator. Report realized cost. Compare focus/discovery variants with outcome-only RL controls under matched training exposure and cost. No new SFT baseline is in scope.
+
+Use Qiskit HumanEval, QHackBench, ScienceAgentBench, LiveCodeBench, IFEval, and the private research suite as specified in the governing plan. Resolve real assets, terms, revisions, and scorer environments before launch. Public smoke examples cannot replace sealed evaluation. External frontier-model comparisons are references, not the causal adapter comparison.
 
 ### 15.2 Scoring and missing measurements
 
-Define `S = 0.5 S_science + 0.5 S_code`, using predeclared family macro averages within each category. Separate expert scores for open-ended research analysis from strict executable correctness. Report deterministic first-answer accuracy and stochastic Pass@1 separately. For n sampled candidates with c correct, estimate Pass@k by `1 - C(n-c,k)/C(n,k)` only when n≥k and the sampling protocol matches; Pass@16 requires actual sampling.
+The governing plan's co-primary quantum and private research endpoints take precedence. A supplementary `S = 0.5 S_science + 0.5 S_code` may summarize predeclared family macro scores but cannot replace those endpoints. Separate native benchmark scores, tool-enabled adaptations, and expert-rated open research from strict executable correctness. Report deterministic first-answer accuracy and stochastic Pass@1 separately. For n sampled candidates with c correct, estimate Pass@k by `1 - C(n-c,k)/C(n,k)` only when n≥k and the sampling protocol matches; Pass@16 requires actual sampling.
 
 Invalid model output and candidate-caused budget failures count as failures. Retry infrastructure VOID under a fixed policy and disclose residual VOID/UNKNOWN counts. Do not promote using a denominator that excludes unresolved hard tasks. Report a conservative lower bound and full coverage, and withhold formal primary conclusions while required measurement cells remain unresolved.
 
@@ -591,9 +576,9 @@ Invalid model output and candidate-caused budget failures count as failures. Ret
 
 Freeze all thresholds before training and final testing. Suggested project targets are:
 
-1. A main-score gain of at least the smaller of 10 percentage points and 20% of the baseline error rate, with a positive lower bound of the paired family-bootstrap 95% interval. Derive the target from an independent baseline pilot; use paired sealed-task results for the final comparison.
+1. A main-score gain of at least the smaller of 10 percentage points and 20% of the baseline error rate, with a positive lower bound under the governing plan's paired cluster analysis and prespecified multiplicity correction. Derive the target from an independent baseline pilot; use paired sealed-task results for the final comparison.
 2. Positive science and coding gains separately, supported by intervals. Otherwise state the narrower domain result achieved.
-3. General mathematics, code, and tool-use noninferiority within a proposed two-percentage-point margin, with paired uncertainty and predefined multiplicity handling.
+3. General mathematics, code, and instruction/tool-use noninferiority: the adjusted lower confidence bound must exceed the proposed -0.02 margin, not merely the point estimate.
 4. No unexplained systematic regression in priority theory, phase, mapping, or QEC families. Freeze any practical family-specific tolerance in advance.
 5. Closed high-severity known verifier and reward vulnerabilities, successful fresh-process load and adapter checks, and reproducible recovery.
 
@@ -627,8 +612,8 @@ Audit new high-reward behaviors during training. On a verifier defect, quarantin
 | G1 Trusted verification | Positive, negative, semantic, and tamper fixtures | Fix verification before producing positive labels |
 | G2 Baseline and data | Matched baseline, lawful sources, disjoint roots, complete counts | Isolate faulty sources or families |
 | G3 Training lifecycle | Load, update, save, terminate, resume, evaluate | Resolve compatibility before expansion |
-| G4 SFT candidate | Development gains and retention | Diagnose data, coverage, and labels |
-| G5 RL candidate | Gains beyond SFT with reward and stability audits | Roll back or reject the hypothesis |
+| G4 Short-horizon RL candidate | Nonzero learning signal, valid actions, development and retention evidence | Diagnose task learnability, coverage, and rewards |
+| G5 Research RL candidate | Gains over matched base and outcome-only RL controls, with reward/stability audits | Roll back or reject the mechanism |
 | G6 Research branches | Replay study, interval audits, contextual and witness ablations | Keep only supported mechanisms |
 | G7 Final candidate | Sealed evaluation, model card, reproduction and recovery | Report unmet criteria; do not promote |
 
@@ -640,14 +625,14 @@ Assign one owner and one writer to each mutable component. Independently review 
 | T02 Contracts and lineage | Task schemas, source registry, root splits | Schema, overlap, and accounting reports |
 | T03 Minimal verifier tracks | Trusted CPU runner, adapters, golden fixtures | Independent positive/negative and tamper results |
 | T04 Pilot data and baseline | Verified small dataset and baseline outputs | Family coverage, costs, and uncertainty |
-| T05 SFT lifecycle | Training adapter and reloadable checkpoint | Parameters change and resume reproduces state |
+| T05 RL lifecycle | Group rollout, actor masks, adapter and full checkpoint | Independent loss/KL, parameter movement, fresh-process resume |
 | T06 Point-reward RL | Explicit loss, reward, and complete groups | Independent loss/KL/gradient checks and canary |
 | T07 Allocation research | Interval ledger, coefficients, bounds, scheduler | Frozen-pool replay and factorial controls |
 | T08 Context benchmark | Paired contracts, witnesses, held-out compositions | Independently adjudicated labels and transfer tests |
-| T09 Tools and distillation | Episode records and witness views | Matched repair controls and zero-tool results |
+| T09 Research agents and witness RL | Episodes, bounded delegation, witness environments | Matched repair/tool controls, shared budgets, transfer results |
 | T10 Recovery and release | Durable jobs, package, analysis, model card | Fault injection, sealed evaluation, reproduction |
 
-The first real loop should include Pauli identities and false statements, one supported Lean matrix lemma, Bell/QFT circuits, a controlled-phase case, asymmetric SDK wire mapping, one fixed-noise stabilizer task, and a small repair project. Run two SFT updates with save/resume, one G=4 RL update with independently computed loss, and at most 32 canary updates before scaling. A canary establishes operability, not research effectiveness.
+The first real loop should include Pauli identities and false statements, one supported Lean matrix lemma, Bell/QFT circuits, a controlled-phase case, asymmetric SDK wire mapping, one fixed-noise stabilizer task, and a small repair project. Run a G=4 RL update with independently computed reward/loss/KL, save/terminate/resume, and at most 32 canary updates before scaling. The legacy supervised trainer cannot satisfy this gate. A canary establishes operability, not research effectiveness.
 
 Useful project directories are `contracts/`, `schemas/`, `data/registry/`, `generators/`, `verifiers/`, `rewards/`, `training/`, `orchestration/`, `evals/`, `tests/`, and `runs/<run_id>/`. Add `research/interval_allocation/`, `research/context_challenges/`, and `research/witness_transfer/` only in the project layer. Keep large weights and datasets in controlled artifact storage; version small fixtures, manifests, configurations, and reproduction entry points in Git.
 
@@ -658,7 +643,7 @@ Useful project directories are `contracts/`, `schemas/`, `data/registry/`, `gene
 This YAML specifies interfaces and initial candidates; it is not an already runnable configuration. Required null placeholders must be resolved by discovery or experimental design before launch. Semantic null rewards remain null. The schema must distinguish these cases. Record all resolved backend defaults and create a new experiment when changing precision, hardware, objective, reward, or evaluation rules.
 
 ```yaml
-schema_version: 2
+schema_version: 3
 project: quantum_posttraining
 status: planned
 model:
@@ -744,6 +729,9 @@ verifier:
   max_inflight_groups: null
   retry_infrastructure_once: true
 training:
+  method: reinforcement_learning_only
+  sft_enabled: false
+  imitation_or_distillation_enabled: false
   microbatch_per_device: 1
   gradient_accumulation: null
   global_effective_tokens: null
@@ -770,9 +758,11 @@ budget:
   currency_limit: null
 evaluation:
   contract_sha256: null
-  primary: equal_science_code_family_macro_pass1
+  primary: governing_rd_plan_coprimary_quantum_and_research
+  official_and_tool_adapted_tracks_separate: true
   paired_family_bootstrap: true
-  confidence: 0.95
+  confidence: 0.975
+  multiplicity: bonferroni_two_primary_endpoints
   general_noninferiority_margin: 0.02
   unresolved_measurements_block_promotion: true
 ```
@@ -836,7 +826,9 @@ and historical evaluations before creating new components.
 Freeze contracts, budgets, splits, and matched baseline evaluation.
 Build the minimal trusted verifier and synchronous training loop.
 Run load, update, save, terminate, resume, and evaluate gates.
-Establish point-reward SFT and RL baselines before research branches.
+Use RL-only adaptation from official weights; do not run project SFT,
+imitation, or distillation. Establish matched base and point-reward RL
+controls before focus, witness, discovery-reward, or delegation branches.
 Evaluate group-aware allocation, contextual tasks, and witness
 transfer with the prescribed independent controls and ablations.
 Preserve raw evidence, provenance, negative results, and costs.
@@ -856,8 +848,6 @@ python -m quantum_posttrain preflight --config contracts/run.yaml
 python -m quantum_posttrain verify-selftest --suite tests/golden
 python -m quantum_posttrain data-audit --manifest data/manifest.json
 python -m quantum_posttrain baseline --config contracts/eval.yaml
-python -m quantum_posttrain smoke --mode sft --config contracts/sft.yaml
-python -m quantum_posttrain train --config contracts/sft.yaml
 python -m quantum_posttrain smoke --mode rl --config contracts/rl.yaml
 python -m quantum_posttrain train --config contracts/rl.yaml
 python -m quantum_posttrain replay-verifiers --config contracts/replay.yaml

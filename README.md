@@ -4,7 +4,7 @@ Research code and engineering specifications for harness-verified quantum scienc
 
 ## Learning to clarify through research
 
-The [Learning to Clarify R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) proposes training Qwen3.6-35B-A3B to identify consequential knowledge gaps, investigate them through retrieval and executable checks, revise its understanding, and stop or abstain under a bounded budget. It defines the architecture, data curriculum, SFT and RL objectives, matched baselines, ablations, resource limits, and implementation gates. This is a proposed research direction; the iterative research loop and its training gains have not yet been implemented or demonstrated.
+The [Learning to Clarify R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) proposes training Qwen3.6-35B-A3B to identify consequential knowledge gaps, investigate them through retrieval and executable checks, revise its understanding, and stop or abstain under a bounded budget. All new adaptation is reinforcement learning from the pinned official checkpoint, with no project SFT or trajectory distillation. The plan covers question discovery, hypothesis testing, evidence use, bounded research agents, validity-gated discovery rewards, and matched adapter-versus-base benchmarks. This is a proposed research direction; the iterative research loop and its training gains have not yet been implemented or demonstrated.
 
 ## Problem generation and rollout
 
@@ -19,10 +19,10 @@ The adapter generates **answers** during rollout. It does not get to choose its 
 - A CPU-only low-rank adapter smoke test that trains, saves, reloads, rolls out, and verifies all 16 generated gate-pair cases.
 - Executable property checks for the proposed interval-based GRPO surrogate bound, its equal-length `lambda=0` degeneration, and a phase-sensitive coherent-control witness.
 - A deterministic 100,000-record synthetic corpus stress runner for generation, root splitting, exact verification, JSONL write/read, and task-contract checks.
-- Optional supervised Qwen LoRA training and verified adapter rollout entry points for an environment with the model, PyTorch, Transformers, PEFT, and a supported accelerator.
-- The English research specification in Markdown and Word formats.
+- A legacy supervised Qwen LoRA utility and verified one-shot adapter rollout entry point. The supervised utility is outside the active RL-only program; the planned multi-turn RL trainer is not yet implemented.
+- Current English Markdown R&D/engineering documents and an earlier Word specification snapshot.
 
-The smoke adapter is a small NumPy low-rank classifier used to validate training, serialization, and verifier orchestration. It does **not** fine-tune a language model and does not establish quantum-reasoning gains. The current workspace has no PyTorch, Transformers, PEFT, Qwen checkpoint, or accelerator runtime, so target-model training must be run and tested in the actual training environment.
+The smoke adapter is a small NumPy low-rank classifier used to validate training, serialization, and verifier orchestration. It does **not** fine-tune a language model and does not establish quantum-reasoning gains. Historical validation covers the CPU harness; target-model RL still requires an authenticated checkpoint and a tested training environment.
 
 ## Reproduce validation and scale checks
 
@@ -54,28 +54,28 @@ python scripts/prepare_data.py
 
 This writes `data/experiment/{train,dev,test}.jsonl` and a root-level split manifest. The fixture has only 16 related tasks, so it demonstrates split mechanics but is not sufficient for model selection or publication evaluation.
 
-## Train and evaluate a Qwen adapter
+## Adapter evaluation and RL implementation status
 
-On the target machine, install the optional dependencies and make a licensed, reviewed training manifest available:
+The active program requires a real, independently checked RL lifecycle before training on the target checkpoint. The existing `scripts/train_qwen_lora.py` performs supervised next-token training and must not be used as the RL path. LoRA is the adaptation mechanism; it does not by itself determine whether training is supervised or reinforcement learning.
+
+For a separately produced, authenticated adapter, the existing one-shot evaluator can check a verified development/test manifest:
 
 ```bash
 python -m pip install -e '.[qwen]'
-python scripts/train_qwen_lora.py \
-  --model /path/to/pinned/Qwen3.6-35B-A3B \
-  --data /path/to/verified/train.jsonl \
-  --output runs/qwen-lora \
-  --steps 32 --rank 8 --alpha 16
 python scripts/rollout_qwen.py \
   --model /path/to/pinned/Qwen3.6-35B-A3B \
-  --adapter runs/qwen-lora \
+  --adapter /path/to/authenticated/rl-adapter \
   --data /path/to/verified/test.jsonl
 ```
 
-The training entry point rejects non-train records and target truncation. The rollout entry point accepts only development/test records and counts malformed outputs as failures. This is a single-device baseline, not the planned distributed 35B training stack. Resolve model revision, hardware backend, target-module names, memory fit, and dependency versions on the actual device before a training run; the example command is an interface, not a claim that the target stack has been validated.
+This entry point is not the full benchmark harness. It rejects non-development/test records and counts malformed outputs as failures. Resolve model revision, runtime, memory, adapter attachment, and dependencies on the actual device.
+
+The R&D plan specifies untouched-base/adapter comparisons under no tools, identical retrieval, the same single-agent harness, and the same bounded worker system. Named suites are Qiskit HumanEval, QHackBench, ScienceAgentBench, LiveCodeBench, and IFEval, alongside sealed research tasks. Official protocols and tool-enabled variants have separate scores. No new training or benchmark result is asserted by this documentation update.
 
 ## Research specification
 
-- [Markdown](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.md)
-- [Word](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.docx)
+- [Governing RL-only R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md)
+- [Current engineering specification](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.md)
+- [Historical Word specification snapshot](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.docx)
 
 The proposed research methods remain hypotheses until the preregistered comparisons and independent evaluations are run.
