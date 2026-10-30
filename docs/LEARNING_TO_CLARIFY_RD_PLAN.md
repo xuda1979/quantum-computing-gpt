@@ -4,15 +4,15 @@
 
 **Target:** Qwen/Qwen3.6-35B-A3B
 
-**Revision:** 3.1 • 30 October 2026
+**Revision:** 4.0 • 30 October 2026
 
 **Status:** Proposed design; no new training or benchmark results are reported.
 
-**Repository baseline reviewed:** [921e5440e61e8946d321015989b78ec533fe9859](https://github.com/xuda1979/quantum-computing-gpt/commit/921e5440e61e8946d321015989b78ec533fe9859)
+**Repository baseline reviewed:** [898ee8f42ab425754cc1c1c3306d734140b02005](https://github.com/xuda1979/quantum-computing-gpt/commit/898ee8f42ab425754cc1c1c3306d734140b02005)
 
 ## 1. Objective and governing decisions
 
-**Core thesis:** carefully designed RL tasks, environments, and feedback should develop strong reusable capabilities within the chosen model's capacity and resource budget. Prioritize reasoning, insight, critical reflection, planning, accurate observation, and effective action, with detailed external knowledge available through tools.
+**Core thesis:** train a hypothesis–falsification metacognitive controller through carefully designed RL tasks, environments, and independent feedback. Prioritize reasoning, insight, critical reflection, planning, accurate observation, and effective action, with detailed external knowledge available through tools.
 
 Develop a compact scientific researcher that forms useful hypotheses, notices consequential gaps, asks the right questions, searches authoritative material, designs discriminating experiments, and revises conclusions from evidence. Qwen supplies the reasoning policy; tools, external memory, and bounded research agents extend what it can investigate.
 
@@ -30,7 +30,7 @@ The following decisions govern the program:
 
 Here **base** means the untouched official checkpoint used to initialize the adapter, not an arbitrary raw pretrained model. A versioned external GPT/Claude system can be a secondary reference; it cannot replace the matched Qwen comparison.
 
-This is the governing R&D plan. The [engineering specification](Qwen36_Quantum_Posttraining_Research_Spec_EN.md) supplies verification and recovery details. Its verifier-allocation study is a separate optional factor. The existing Word specification is a historical snapshot; the current Markdown documents govern this revision.
+This is the governing R&D plan. The [metacognitive RL protocol](METACOGNITIVE_RL_PROTOCOL.md) supplies the five-category curriculum, English generation prompts, claim/action contracts, process-reward study, and behavioral tests. The [engineering specification](Qwen36_Quantum_Posttraining_Research_Spec_EN.md) supplies verification and recovery details. Its verifier-allocation study is a separate optional factor. The existing Word specification is a historical snapshot; the current Markdown documents govern this revision.
 
 ### 1.1 Capability per unit of compute
 
@@ -60,6 +60,16 @@ Smallness is a resource/design choice, not evidence of stronger reasoning. The f
 | Sparse active computation does not remove total weight/training-state storage | Profile the actual 35B model, adapters, caches, and optimizer | Peak memory, usable concurrency, and useful tokens per second |
 
 Success means better scientific results per measured resource unit and reliable transfer. If extra tool calls or workers erase the expected savings, the system has not demonstrated that advantage. Frontier-model replacement and superior intelligence from small size are not assumed.
+
+### 1.3 Hypothesis–falsification control as the learning target
+
+The desired research loop is **identify knowns/unknowns → propose a few competing hypotheses → design a possible falsifier → decide whether to derive, retrieve, ask, or experiment → track evidence → backtrack on a valid contradiction → form a scoped conclusion**. Train decisions by their consequences. A formatted transcript, a long explanation, or agreement with a teacher does not establish a useful policy.
+
+The supplied suggestions motivate explicit state tracking, disconfirmation, error diagnosis, attention allocation, and dynamic agent interaction. Their proposed SFT/DPO sequence is adapted to the established RL-only decision: the five categories become distributions of environments for fresh policy rollouts, and crafted positive/negative examples become scorer probes and task proposals. They are not imitation targets or preference-pair optimization data.
+
+Preserve useful foundations and correct knowledge. Prefer retrieval for detailed, changing, source-dependent facts, and require evidence for consequential factual claims. Do not optimize for forgetting, claim that all factual memory can be removed from weights, or accept predictable closed-book deterioration as evidence of success. No continued encyclopedia/textbook pretraining is planned. Knowledge and control skills share the same network; reduced template reliance must be demonstrated behaviorally.
+
+Use two or three alternatives when justified by uncertainty; answer directly when the conditions and checks already suffice. Necessary assumptions cannot be skipped because their priority is low. Final correctness and warranted conclusions remain mandatory gates even when metacognitive decisions receive shaping rewards. The four new behavioral dimensions complement the external quantum-code and full research-success endpoints.
 
 ## 2. Starting point and hypotheses
 
@@ -91,6 +101,8 @@ The existing Qwen path handles CUDA/CPU explicitly; it is not a validated Ascend
 | H3: Delegation helps | Single-agent versus delegated execution for base and adapter | More worker compute yields no quality-cost advantage |
 | H4: Structured memory helps | Evidence-aware memory versus equal-length summaries | Decisive evidence is lost or no tradeoff improves |
 | H5: Skills generalize | External benchmarks and unseen scientific families | Gains remain confined to templates or SDK versions |
+| H6: Falsification control improves decisions | Five-category curriculum/process-reward studies versus matched outcome-only RL and format controls | Labels improve but evidence-sensitive actions, valid refutation, and repair do not |
+| H7: External evidence reduces template dependence | New-information and decisive-source interventions, with foundation retention | Recalled answers ignore changed evidence, or gains require harmful forgetting |
 
 ReAct, Search-R1, DeepResearcher, and Co-Scientist establish relevant precedents [R2–R5]. The primary candidate is **RL for decision-relevant investigation**: choose questions and experiments by independently measured downstream value. Evidence-preserving memory and economical delegation are supporting studies. Search, reflection, external memory, and multiple agents alone are not novelty claims.
 
@@ -122,7 +134,7 @@ $$
 
 where \(x\) is the public task, \(C_t\) the claim/dependency ledger, \(E_t\) accessible evidence, \(M_t\) working memory, and \(b_t\) remaining shared budget. Hidden answers, evaluation tests, and privileged rubric annotations never enter this state.
 
-Use typed actions: **OBSERVE, ASSESS, PROPOSE_QUESTION, SELECT, PLAN, SEARCH, READ, DERIVE, EXECUTE, VERIFY, DELEGATE, REVISE, COMPRESS, ANSWER, ABSTAIN**. OBSERVE requests or inspects an authentic source/measurement; PLAN specifies subgoals, dependencies, expected observations, contingencies, and budget. A proposed question identifies the affected claim, competing possibilities, a feasible observation, and why that observation matters.
+Use typed actions: **OBSERVE, ASSESS, HYPOTHESIZE, DESIGN_TEST, PROPOSE_QUESTION, SELECT, PLAN, SEARCH, READ, ASK, DERIVE, EXECUTE, VERIFY, DELEGATE, REVISE, BACKTRACK, DEFER, COMPRESS, ANSWER, ABSTAIN**. OBSERVE requests or inspects an authentic source/measurement; PLAN specifies subgoals, dependencies, expected observations, contingencies, and budget. A proposed question identifies the affected claim, competing possibilities, a feasible observation, and why that observation matters. DESIGN_TEST declares predictions and a refutation condition; ASK targets missing user intent or conditions; BACKTRACK invalidates affected descendants; DEFER preserves an unresolved obligation and reopening condition.
 
 The intended value of an investigation is expected improvement in independently verified final utility minus resource cost. Estimate bounded action-menu values on training roots using matched continuations. This is a proxy, not an optimality theorem. Missing information, conflicting sources, ambiguity, reasoning inability, and simulation noise require different remedies.
 
@@ -131,6 +143,12 @@ The intended value of an investigation is expected improvement in independently 
 A tentative claim says \(U\) and \(e^{i\phi}U\) are interchangeable because global phase is unobservable. The task composes them under coherent control. The useful question is whether standalone equivalence survives that composition.
 
 For \(U=I\), controlled-\(e^{i\phi}I\) changes the relative phase of a control in \(|+\rangle\), giving \(\langle X\rangle=\cos\phi\); controlled-\(I\) gives \(1\). The policy should choose this witness, revise its assumption, and state when substitution is valid. This is an analytic example, not a trained-model discovery. Hold out different composition families to test judgment.
+
+### 3.3 Claim states and test obligations
+
+Track ASSUMED, HYPOTHESIS, TO_TEST, NEED_EVIDENCE, CONFLICT, REFUTED, SUPPORTED, VERIFIED, and DEFERRED states under the [protocol's transition contract](METACOGNITIVE_RL_PROTOCOL.md#2-observable-state-and-actions). Each consequential claim carries assumptions, scope, dependencies, evidence IDs, and remaining obligations. Record a compact public action/evidence log; no exhaustive private reasoning trace is required.
+
+The model proposes states; the harness authenticates checks. SUPPORTED means evidence favors a claim within stated limits; VERIFIED names a checked obligation under explicit assumptions. Neither a printed label nor survival of finite tests proves a universal theorem. A valid refutation triggers dependency-aware backtracking, with independent correct subresults retained. Conflicting snippets require scope/version/source checks and may remain unresolved. The runtime must preserve that uncertainty through memory compression.
 
 ## 4. Research agents, evidence, and memory
 
@@ -189,7 +207,7 @@ Cover algorithm families, qubit counts, noise models, assumptions, SDKs, version
 
 ### 5.2 Initial mixture
 
-Assign each task one primary bucket so percentages do not double count. These are proposed RL sampling shares.
+Assign each task one primary domain bucket so percentages do not double count. These are proposed RL domain sampling shares. Section 5.7 adds an orthogonal process-category distribution; publish a feasible joint matrix satisfying both margins.
 
 | Bucket | Share | Examples |
 | --- | ---: | --- |
@@ -267,6 +285,32 @@ Construct paired interventions. Hold wording/style fixed while changing one deci
 Retain each task's intended skill, controlled intervention, prerequisites, authentic observation/action log, expected behavioral consequence, and independent scoring contract. Policy records can be concise beliefs, plans, checks, and revisions; no inaccessible private reasoning trace is required. An RL attempt remains sampled from the behavior policy, including failed actions.
 
 Add a fixed diagnostic stream spanning all capabilities. A task generator that optimizes only for immediate reward may neglect foundations, difficult plans, or uncommon valid strategies. Audit learnability, structural diversity, observation fidelity, label/verifier quality, and learning signal per family before expanding volume.
+
+### 5.7 Five-category metacognitive curriculum
+
+Adopt the supplied process distribution for RL environments and complete on-policy prompt groups:
+
+| Primary process category | Share | Required learning opportunity |
+| --- | ---: | --- |
+| Hypothesis generation and falsification | 40% | Distinct explanations, feasible falsifier, evidence-sensitive update |
+| State awareness and information-gap/retrieval decisions | 25% | Missing-condition and conflicting-source variants, with sufficient-information controls |
+| Error diagnosis and backtracking | 20% | Locate an unsupported assumption, invalidate descendants, repair on a fresh case |
+| Resource and attention allocation | 10% | Prioritize a consequential DAG node and measure continuation value/cost |
+| Concise foundational logic | At most 5% | Diverse short checked derivations; no bulk template drilling |
+
+The starting 2,000-root inventory is 800/500/400/200/100 across these categories. All are proposed, unbuilt quantities. Keep one primary category per root, paired interventions within their root/split, and a domain/process coverage matrix. Schedule 40/25/20/10/5 complete prompt-group dispatches per declared 100-group block; reconcile actual consumed groups and trained tokens. Category 5 remains capped at 5% of consumed groups and trained actor tokens in the declared window and full run. Do not evade the cap through cold-start or retention labels. Simplify Categories 1–4 for early learning instead.
+
+The [protocol](METACOGNITIVE_RL_PROTOCOL.md#3-five-category-process-curriculum) defines scheduling, accounting, and exceptions that must be reported as violations. Changing the Category 5 cap requires a new research decision. Other curriculum changes use development evidence and a versioned contract, never sealed tests.
+
+### 5.8 Generation, filtering, and online evidence
+
+The [English generator templates](METACOGNITIVE_RL_PROTOCOL.md#4-sources-and-generation-prompts) cover all five categories, an explicit private/public boundary, negative failure probes, and independently checkable obligations. Use permitted primary sources and official documentation; discussion posts suggest tasks but cannot establish truth. Reviews must be open or authorized. Do not assume arXiv supplies a reusable comments corpus or that confidential review text is available.
+
+Split before transformation; deduplicate source ancestry, content, semantic/AST/circuit/proof structure, and answer templates. Retain diverse applications of a useful control policy. Reject invalid environments before rollout, then keep failed/malformed on-policy members in complete groups with their declared rewards. Filtering out failures after rollout would bias learning. Category 5 and sufficient-information controls may legitimately yield concise direct answers.
+
+Use 800–1,500 generated tokens as an initial upper-range target for a complete short record, without a required minimum. Individual actions should be concise; long investigations use multiple budgeted turns and persistent evidence pointers. Do not reward length, pad traces, or truncate away disconfirming observations. All failed attempts and consumption remain accounted.
+
+Start interactive training with versioned source stores and seeded evidence updates, conflicts, staleness, and outages. Actual tools return observations. Pair source snapshots/update schedules/seeds during comparison; live-web robustness is a separate timestamped track. New findings propose future roots and scorer attacks between frozen runs, not DPO replay of selected successful trajectories.
 
 ## 6. RL-only training sequence
 
@@ -360,6 +404,20 @@ A private provenance rubric may judge a theoretical training task only after rel
 
 Diversity is initially a proposal-selection diagnostic. Canonicalize AST/mechanism representations and manually inspect whether differences are substantive. Do not reward unusual language or invalid ideas. A group-relative uniqueness reward couples candidates and changes the objective; do not plug it into ordinary independent-return GRPO/SAPO without a defined joint estimator and tests. Any later bounded diversity bonus requires its own matched experiment and a validity gate.
 
+### 6.7 Separate metacognitive process-reward experiment
+
+Begin with the outcome-only control in Section 6.3. After the decision scorer passes independent adversarial audits, test the [protocol's bounded shaping contract](METACOGNITIVE_RL_PROTOCOL.md#7-reward-hierarchy-and-safeguards):
+
+$$
+R_i^{\rm meta}=Y_i-0.05C_i-0.05F_i+0.04M_i-0.04U_i,
+$$
+
+where \(M_i\in[0,1]\) scores independently evidenced gap/acquisition judgment, hypothesis/falsifier quality, contradiction/backtracking, resource allocation, and logical discipline with weights 0.30/0.25/0.20/0.15/0.10. \(U_i\in[0,1]\) measures demonstrably avoidable actions. Fixed task applicability masks set inapplicable components to zero; missing required evidence makes the shaping measurement VOID.
+
+For eligible infrastructure-valid episodes, success is at least 0.86 and failure at most 0.04. Final correctness cannot be traded away for process labels. Hard-invalid actions retain their separately declared penalty. Independently verify the bounds, token masks, missing-value handling, and scorer behavior before a canary. A planning-only success certifies only that planning contract and is reported separately from solved research tasks.
+
+Crafted good/bad examples audit the scorer; they are not DPO or imitation inputs. Keep this study separate from SELECT-specific estimators and group-coupled discovery rewards. Compare against outcome-only RL with matched roots, rollout/update tokens, evaluator access, and total cost. Reject superficial label gains, gratuitous search/ASK, manufactured uncertainty, and false self-criticism.
+
 ## 7. Trusted verification
 
 | Track | Accepted evidence | Limit |
@@ -434,6 +492,19 @@ Add prespecified diagnostics to the existing paired base/adapter evaluation; the
 
 Give controls comparable development tuning. Freeze diagnostic families and analysis before testing, report per-capability uncertainty and retention, and label underpowered studies exploratory. Use measured quality-cost curves to decide whether repeated research actions exploit the smaller actor's resource profile. A claim specifically attributable to model size also needs a pinned larger model with disclosed architecture/size under the same harness and resource accounting; a same-size base/adapter pair alone cannot isolate a size effect.
 
+### 8.5 Four metacognitive evaluation dimensions
+
+Use the [protocol's frozen behavioral tests](METACOGNITIVE_RL_PROTOCOL.md#8-evaluation-that-can-disprove-the-proposal) to measure:
+
+1. **Uncertainty and information gaps:** gap precision/recall, false-gap rate, unnecessary search/ASK, confidence calibration, and success at matched coverage.
+2. **Hypothesis–falsification quality:** nonredundant alternatives, feasible valid falsifiers, executed discriminating checks, and warranted scoped updates.
+3. **Backtracking:** first-defect localization, correct descendant invalidation, preservation of valid work, fresh-case repair, and harmful revision on correct controls.
+4. **Conflicting evidence:** contradiction detection, scope/version reconciliation, source fidelity, response to changed decisive evidence, and unsupported certainty.
+
+Freeze opportunity denominators, applicability masks, root clusters, source interventions, scorer versions, expert rubrics, and multiplicity before testing. Report raw counts and unresolved cells. Include superficially correct labels attached to wrong actions, semantically correct concise actions without decorative labels, label-removal/renaming controls, unseen witness/source families, and sufficient-information cases. No empty slice is a perfect score.
+
+These dimensions diagnose the research controller alongside external coding/full-workflow correctness. MMLU/GSM8K are not main optimization targets; correct foundations and the existing code/instruction/math guardrails remain required. Lower closed-book scores are neither inevitable nor an automatic acceptable tradeoff. A behavioral-gain claim requires its prespecified paired comparison to the nearest RL control; model promotion also requires Section 9's co-primary and retention gates.
+
 ## 9. Statistics, falsification, and promotion
 
 Freeze task IDs, counts, metrics, checkpoint selection, thresholds, and analysis before sealed testing. Select checkpoints only on development data. Test results must not guide curriculum tuning.
@@ -505,13 +576,13 @@ All packages are planned; none is asserted implemented by this document.
 | Package | Dependency | Deliverable | Exit evidence |
 | --- | --- | --- | --- |
 | P0: inventory/freeze | Audit | Identity/runtime manifests, development protocol, budgets | Actual availability and known limits |
-| P1: research contracts | P0 | Episodes, ledgers, isolated tools, replay | Malformed/forged evidence rejected |
-| P2: data/baselines | P1 | Capability/intervention matrix, splits, 120-root pilot, D/R/S/O runs | Independent contracts, learnability and coverage audits, complete records |
+| P1: research contracts | P0 | Public/private episodes, claim/test/dependency ledgers, isolated tools, replay | Malformed/forged states and invalid branch transitions rejected |
+| P2: data/baselines | P1 | Domain/process matrix, 40/25/20/10/5 sampler, splits, 120-root pilot, D/R/S/O runs | Independent contracts, group/token cap audits, source interventions, complete records |
 | P3: RL lifecycle | P2 | Group rollout, actor masks, objective, LoRA resume | Independent loss/KL and target-device canary |
 | P4: research RL | P3 | Outcome RL and retention mix | Paired development gain or rejection |
-| P5: focus/discovery RL | P4 | Branch runner, SELECT RL, discovery environments | Matched-exposure controls and useful-question evidence |
+| P5: focus/discovery RL | P4 | Separate SELECT, metacognitive-shaping, and discovery studies | Independent scorer/reward audits, matched-exposure controls, evidence-sensitive decisions |
 | P6: agents/memory | P4; P5 optional | Bounded workers, shared accounting, evidence memory | Delegation and memory ablations |
-| P7: sealed evaluation | Frozen candidates | Public/private outputs and analysis | Complete counts, uncertainty, decision |
+| P7: sealed evaluation | Frozen candidates | Public/private outputs, four behavioral dimensions, analysis | Unseen-family and label controls, complete counts, uncertainty, promotion decision |
 
 Add versioned research records alongside the strict one-qubit Task. Proposed modules include `episodes.py`, `evidence.py`, `tools.py`, `runner.py`, `focus_rl.py`, `delegation.py`, and `evaluation.py`; these are not implemented APIs.
 
@@ -526,6 +597,13 @@ Full completion requires a loadable adapter/manifests, lawful source/task lineag
 | Suggestion | Decision |
 | --- | --- |
 | SFT, self-distillation, elite-trace imitation | Excluded; task construction and on-policy RL only |
+| Latest SFT → DPO/GRPO → online-agent sequence | Adapt to the established RL-only lifecycle; crafted contrasts audit scorers rather than train preference losses |
+| Five-category 40/25/20/10/5 distribution | Adopt for process sampling alongside domain coverage; cap Category 5 groups and actor tokens |
+| Hypothesis states, falsifiers, conflicts, and backtracking | Adopt explicit claim/test/dependency contracts; trusted evidence governs verification |
+| All facts removed from weights; only a control policy remains | Unsupported mechanism; prefer external evidence while preserving foundations and correct knowledge |
+| Final correctness has the lowest unrestricted reward weight | Replace with correctness gates and bounded process shaping so failure cannot outrank success |
+| Mandatory state labels, rivals, search, or 800–1,500-token minimum | Require meaningful observable decisions; allow concise direct answers and only necessary actions |
+| Closed-book decline is certain and acceptable; abandon external benchmarks | No such assumption; retain foundation guardrails, matched external suites, and add four behavioral dimensions |
 | SAPO and fixed “creative” temperatures | Reproduce exact conventions; compare on development data without guaranteed benefit |
 | Medium-pass-rate filtering | Bounded diagnostic with easy/hard/family monitoring |
 | General/quantum mixture | Initial RL sampling hypothesis plus retention gates |
