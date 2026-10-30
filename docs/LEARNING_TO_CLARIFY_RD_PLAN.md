@@ -1,557 +1,506 @@
-# Learning to Clarify: Research and Development Plan
+# Learning to Clarify: RL-Only Research and Development Plan
 
 **Project:** quantum-computing-gpt
 
 **Target:** Qwen/Qwen3.6-35B-A3B
 
-**Date:** 27 October 2026
+**Revision:** 3.0 • 30 October 2026
 
-**Status:** Proposed research and implementation plan; no new model training or efficacy results are reported here.
+**Status:** Proposed design; no new training or benchmark results are reported.
+**Repository baseline reviewed:** [ed988f43053c187a623f39befb2439f60bb9b5ac](https://github.com/xuda1979/quantum-computing-gpt/commit/ed988f43053c187a623f39befb2439f60bb9b5ac)
 
-**Repository baseline reviewed:** [0cec203adcd50197b5e2b3c0e4aaf70df59614a9](https://github.com/xuda1979/quantum-computing-gpt/commit/0cec203adcd50197b5e2b3c0e4aaf70df59614a9)
+## 1. Objective and governing decisions
 
-## 1. Objective
+Develop a compact scientific researcher that forms useful hypotheses, notices consequential gaps, asks the right questions, searches authoritative material, designs discriminating experiments, and revises conclusions from evidence. Qwen supplies the reasoning policy; tools, external memory, and bounded research agents extend what it can investigate.
 
-Train a model to turn an incomplete understanding into a defensible answer through focused investigation. Given a quantum-science or programming problem, the model should form a provisional understanding, identify the uncertainty that most affects the answer, retrieve relevant material or run a discriminating experiment, revise its understanding, and stop when the evidence meets the task's requirements.
+The project's advantage should come from **research judgment and verified problem solving**. Parameters should retain mathematical foundations, scientific concepts, programming ability, and reusable investigation skills. Detailed, changing, or rarely needed information can come from external sources. Do not deliberately weaken correct knowledge or force vague answers: an already solved problem should receive a direct answer.
 
-The intended capability is **learning how to acquire and use missing knowledge**, while retaining enough mathematics, physics, programming, and reasoning ability to interpret that knowledge. Model parameters should increasingly encode reusable research skills; versioned external sources should supply detailed, changing, or rarely used facts. The first deployment remains a quantum research assistant. Transfer to other domains is a later empirical question.
+Human research motivates this behavior. Insight may be a useful abstraction, a missing assumption, a counterexample, a better question, or an experiment that separates competing explanations. This is an engineering analogy, not a claim of brain equivalence. Proprietary GPT/Claude model sizes and memorization capacity are not assumed.
 
-Human learning motivates the design: people often begin with a rough mental model and improve it by directing attention toward consequential gaps. This is an engineering analogy, not a claim that the system reproduces the brain. We will not deliberately make a correct model vague. An initial answer may already be correct, in which case unnecessary research should be avoided.
+The following decisions govern the program:
 
-Large language models also use retrieval, tools, and iterative research. We do not assume that proprietary models know everything initially, and we do not infer their undisclosed parameter counts. The useful question is whether a model of the requested size can achieve better verified results at acceptable total cost by learning a research policy.
+1. **All new adaptation uses reinforcement learning.** Initialize from a pinned official, already post-trained checkpoint. Add no project SFT, demonstration imitation, preference-optimization phase, teacher-logit matching, or successful-trajectory distillation. Upstream historical training is outside this restriction.
+2. **Tools are part of the intended capability.** Search, reading, simulation, code/proof checking, and delegated investigation are available within explicit budgets.
+3. **Learn problem selection as well as solutions.** Detect false premises, identify promising questions, and decide what evidence would change a conclusion.
+4. **Compare adapter and base under identical conditions.** Match prompts, tools, sources, workers, and aggregate inference resources.
+5. **Require independent evidence.** Fluent prose, high training reward, more agents, or a small internal perfect score cannot establish generalization or discovery.
 
-**Central hypothesis:** at the same model size, source access, and inference budget, a trained policy that selects decision-relevant uncertainties will outperform both one-pass retrieval and a well-prompted iterative agent.
+Here **base** means the untouched official checkpoint used to initialize the adapter, not an arbitrary raw pretrained model. A versioned external GPT/Claude system can be a secondary reference; it cannot replace the matched Qwen comparison.
 
-### 1.1 Observable behavior
+This is the governing R&D plan. The [engineering specification](Qwen36_Quantum_Posttraining_Research_Spec_EN.md) supplies verification and recovery details. Its verifier-allocation study is a separate optional factor. The existing Word specification is a historical snapshot; the current Markdown documents govern this revision.
 
-| Stage | Required output | Evidence of improvement |
+## 2. Starting point and hypotheses
+
+### 2.1 Model and implementation inventory
+
+The official [model card][R1] describes approximately 35B total language-model parameters and 3B activated per token, a mixture of experts, and mixed Gated DeltaNet/gated attention. Active parameters describe computation, not resident weight storage. A two-byte estimate for 35B weights alone is about 70 GB, before other components, caches, activations, optimizer state, and runtime overhead.
+
+Pin weights, tokenizer, chat template, configuration, reasoning mode, precision, adapter targets, and runtime. Discover actual module names rather than assuming LoRA compatibility. Begin with text-only inputs.
+
+| Component | Present capability | Gap for this plan |
 | --- | --- | --- |
-| Provisional understanding | Candidate answer or hypotheses, explicit assumptions, unresolved obligations | Separates established facts from guesses |
-| Focus selection | One priority question and the observation that could change the answer | Chooses a consequential gap rather than an easy peripheral fact |
-| Investigation | A targeted query, source inspection, derivation, or executable test | Obtains relevant evidence within budget |
-| Revision | Changed claim, linked evidence, affected dependencies | Corrects a misconception or narrows its scope |
-| Completion | Answer, supporting sources/tests, remaining limitations | Meets the contract or explicitly abstains |
+| [Contracts](../src/quantum_posttrain/contracts.py), [generator](../src/quantum_posttrain/generator.py), [splits](../src/quantum_posttrain/splits.py) | Exact one-qubit tasks and root-disjoint fixtures | Diverse scientific tasks and research episodes |
+| [Proposal boundary](../src/quantum_posttrain/llm_boundary.py) | Model proposals cannot assign trusted labels | Research-question admission and adjudication |
+| [Quantum checks](../src/quantum_posttrain/quantum.py), [contextual witness](../src/quantum_posttrain/contextual.py) | Small exact checks and a controlled-phase witness | Multi-qubit, multi-SDK, scientific-workflow coverage |
+| [Qwen trainer](../src/quantum_posttrain/qwen_training.py) | Supervised LoRA | Actual RL loss, rollout groups, actor masks, full resume state |
+| [Qwen rollout](../scripts/rollout_qwen.py) | One-shot execution and verification | Multi-turn research, workers, benchmark adapters |
+| [Validation report](RESEARCH_VALIDATION_REPORT.md) | Historical CPU/synthetic harness checks | Measured Qwen gains, target-device RL, scientific research results |
 
-“Clearer” means more correct, better supported, and better scoped. Longer explanations and rising self-confidence are not evidence of clarity. Contradictory evidence may properly increase uncertainty before a later resolution.
+The supervised trainer is a **legacy implementation outside this RL-only program**. Calling it or renaming its cross-entropy loss would not implement the plan. This documentation PR neither removes it nor supplies a working replacement.
 
-## 2. Starting point and scope
+The existing Qwen path handles CUDA/CPU explicitly; it is not a validated Ascend trainer. Dependency minima are not a tested environment lock. The 16 related smoke cases, synthetic 100,000-record check, and any separately reported 18/18 internal result are not external generalization evidence. Do not import measurements from another repository or an unidentified adapter.
 
-### 2.1 Model identity and deployment assumptions
+### 2.2 Falsifiable research hypotheses
 
-The official [Qwen model card][R1] identifies Qwen3.6-35B-A3B as a mixture-of-experts model with approximately 35B total language-model parameters and 3B activated per token. It uses a mixed attention architecture. It is an economical-compute target relative to much larger models, but 35B total parameters still require substantial memory.
-
-The raw two-byte weight estimate is approximately 70 GB, or 65.2 GiB, before other model components, activations, caches, optimizer state, and runtime overhead. Active parameter count does not imply that only 3B parameters need storage. LoRA reduces trainable state rather than eliminating base-weight storage.
-
-Pin the model revision, configuration, tokenizer, processor/chat template, weight hashes, adapter targets, precision, and inference mode before comparison. Use a text-only workflow initially. Inspect the actual model modules and runtime support; do not infer compatible LoRA targets or accelerator support from the model name.
-
-### 2.2 What the repository currently supports
-
-This inventory reflects the reviewed commit, not a fresh target-device validation.
-
-| Existing component | Reusable contribution | Missing capability for this plan |
+| Hypothesis | Required comparison | Rejection condition |
 | --- | --- | --- |
-| [Task contracts](../src/quantum_posttrain/contracts.py), [generator](../src/quantum_posttrain/generator.py), [split assignment](../src/quantum_posttrain/splits.py) | Strict one-qubit contracts, generated examples, root-disjoint splits | Research episodes, document provenance, prerequisite graphs, multi-step observations |
-| [LLM proposal boundary](../src/quantum_posttrain/llm_boundary.py) | Model proposals cannot assign trusted labels | Research-task adjudication and independent claim checks |
-| [Quantum verifier](../src/quantum_posttrain/quantum.py) | Exact small-circuit equivalence up to global phase | Context-sensitive multi-qubit tests, SDK tests, theory obligations |
-| [Qwen data formatting](../src/quantum_posttrain/qwen_data.py), [LoRA training](../src/quantum_posttrain/qwen_training.py), [rollout entry point](../scripts/rollout_qwen.py) | Optional supervised training and one-shot candidate evaluation | Multi-turn tool trajectories, tool-token masks, focus supervision, RL, resumable optimizer state |
-| [Allocation research](../src/quantum_posttrain/allocation.py) | Scalar checks for verifier allocation and surrogate bounds | Inference-time selection of research actions |
-| [Existing validation report](RESEARCH_VALIDATION_REPORT.md) | Recorded CPU and synthetic harness checks | Evidence of Qwen learning, research performance, or distributed/NPU readiness |
+| H1: RL improves research | RL adapter versus base in the same harness | No useful paired gain within budget |
+| H2: Learning focus helps | Outcome-only RL versus focus-reward RL, matched exposure and compute | Extra data or simple focus heuristics explain the gain |
+| H3: Delegation helps | Single-agent versus delegated execution for base and adapter | More worker compute yields no quality-cost advantage |
+| H4: Structured memory helps | Evidence-aware memory versus equal-length summaries | Decisive evidence is lost or no tradeoff improves |
+| H5: Skills generalize | External benchmarks and unseen scientific families | Gains remain confined to templates or SDK versions |
 
-The current training path explicitly handles CUDA or CPU; it is not an implemented Ascend training path. Its dependency lower bounds are not a tested Qwen3.6 environment lock. The 16-case fixture and the synthetic 100,000-record plumbing check do not constitute a research benchmark.
+ReAct, Search-R1, DeepResearcher, and Co-Scientist establish relevant precedents [R2–R5]. The primary candidate is **RL for decision-relevant investigation**: choose questions and experiments by independently measured downstream value. Evidence-preserving memory and economical delegation are supporting studies. Search, reflection, external memory, and multiple agents alone are not novelty claims.
 
-### 2.3 Relationship to the existing specification
+## 3. Observable scientific capability
 
-This plan expands the tool-interaction direction in the [English post-training specification](Qwen36_Quantum_Posttraining_Research_Spec_EN.md), especially Sections 5, 14, and 15. It preserves the [harness-owned problem and rollout boundary](PROBLEM_AND_ROLLOUT_BOUNDARY.md).
-
-For this research direction, prioritize learned investigation and evidence use. Zero-tool distillation remains a secondary experiment: the deployed model is allowed to consult materials. Distill reusable search, verification, and revision skills without making complete factual memorization a prerequisite.
-
-Keep the existing group-level verifier-allocation research as a separate experimental factor. It allocates checks to certify training updates; the proposed focus policy allocates actions to improve an inference-time answer. Their uncertainties, objectives, and evidence contracts differ. Initially hold the training verifier schedule fixed.
-
-This PR supplies a plan and navigation only. Implementation, dataset construction, and accelerator runs are subsequent work.
-
-## 3. Prior art and the proposed contribution
-
-A targeted review of the primary sources below establishes substantial overlap. It does not establish exhaustive novelty or publication priority.
-
-| Prior work | Relevant precedent | What this project must additionally test |
+| Capability | Required behavior | Evidence |
 | --- | --- | --- |
-| RAG [R2] | Combines parametric generation with external retrieval | Whether repeated, learned investigation improves on the same retrieval resources |
-| ReAct [R3] | Interleaves reasoning-related outputs with actions and observations | Whether training the focus and revision policy adds value over a strong prompted loop |
-| Self-RAG [R4] | Learns when to retrieve and how to critique generated material | Whether verified, decision-relevant focus improves beyond adaptive retrieval and critique |
-| Search-R1 [R5] | Trains multi-turn search behavior with RL and masks retrieved tokens from policy optimization | Whether focus supervision and executable quantum evidence improve on an outcome-trained search agent |
-| DeepResearcher [R6] | Trains research agents in real web environments | Whether a bounded single-policy system delivers reliable scientific clarification at lower measured cost |
+| Abstraction | Identifies an invariant, assumption, limiting case, or reformulation | Better held-out predictions or simpler correct solutions |
+| Question discovery | Identifies the issue that most affects the answer | Better outcomes than random or uncertainty-only focus |
+| Hypothesis testing | Distinguishes competing explanations | A discriminating experiment and justified update |
+| Evidence acquisition | Reads relevant sources and checks scope/version | Valid source-to-claim links and correct use of new facts |
+| Experiment design | Chooses controls, measurements, and failure criteria | Reproducible artifacts and independent checks |
+| Self-correction | Uses actual errors and counterexamples | Recovery without excessive harmful revisions |
+| Agent coordination | Delegates bounded questions and checks results | Gains within the same aggregate budget |
+| Stopping judgment | Answers, qualifies, or abstains appropriately | Accuracy/coverage and cost curves |
 
-Search, self-reflection, RL, external memory, and a new name are not independent novelty claims.
+“Profound insight” is assessed by consequences, not writing style. It must expose a consequential assumption, produce a valid counterexample, improve a held-out prediction, or reduce experiment cost while retaining correctness. Open-ended originality needs blinded domain review and literature assessment. Agent agreement is not independent validation.
 
-The primary research candidate is **decision-relevant focus supervision**. At selected training states, compare several possible investigations under the same continuation budget. Train the model to choose investigations that lead to independently verified improvements, including cases where the most uncertain claim is not the most consequential one.
+### 3.1 State and research actions
 
-Two supporting candidates are:
-
-1. **Verified clarification trajectories:** an evaluation and training representation linking provisional claims, acquired evidence, revisions, and final executable obligations. Its value must exceed an ordinary full transcript.
-2. **Evidence-preserving working memory:** compression that retains unresolved dependencies and contradictory evidence. Its value must exceed equally sized generic summaries.
-
-These are hypotheses. The main contribution survives only if it outperforms the closest feasible controls with matched data, teacher effort, tools, and compute. Refresh the literature and inspect implementation differences before making a submission claim.
-
-## 4. Research formulation
-
-### 4.1 What the policy observes
-
-Model an episode as a partially observed decision process. The underlying scientific facts and correct solution are not generally known to the policy. At step $t$, the available state is
+The policy observes
 
 $$
-s_t = (x, C_t, E_t, M_t, b_t),
+s_t=(x,C_t,E_t,M_t,b_t),
 $$
 
-where $x$ is the public task and contract, $C_t$ is a structured claim/dependency ledger, $E_t$ is accessible evidence, $M_t$ is bounded working memory, and $b_t$ is remaining budget.
+where \(x\) is the public task, \(C_t\) the claim/dependency ledger, \(E_t\) accessible evidence, \(M_t\) working memory, and \(b_t\) remaining shared budget. Hidden answers, evaluation tests, and privileged rubric annotations never enter this state.
 
-This is an engineering state representation, not a proven sufficient statistic. Compression can discard information; evaluate that loss explicitly. Hidden answers and final evaluation tests never belong to $s_t$.
+Use typed actions: **ASSESS, PROPOSE_QUESTION, SELECT, SEARCH, READ, DERIVE, EXECUTE, VERIFY, DELEGATE, REVISE, COMPRESS, ANSWER, ABSTAIN**. A proposed question identifies the affected claim, competing possibilities, a feasible observation, and why that observation matters.
 
-Distinguish four reasons for uncertainty:
+The intended value of an investigation is expected improvement in independently verified final utility minus resource cost. Estimate bounded action-menu values on training roots using matched continuations. This is a proxy, not an optimality theorem. Missing information, conflicting sources, ambiguity, reasoning inability, and simulation noise require different remedies.
 
-- **Missing evidence:** an external definition, assumption, API detail, or result is needed.
-- **Conflicting evidence:** sources disagree, apply to different versions, or use different conventions.
-- **Unclear task specification:** the requested output or assumption is ambiguous.
-- **Capability limitation:** the model cannot complete a derivation or interpret the evidence.
+### 3.2 Worked example
 
-A further search may resolve the first case but fail to resolve the others. Sampling noise in a simulation is a separate statistical uncertainty; it requires an appropriate estimator and sampling contract.
+A tentative claim says \(U\) and \(e^{i\phi}U\) are interchangeable because global phase is unobservable. The task composes them under coherent control. The useful question is whether standalone equivalence survives that composition.
 
-### 4.2 Focus as expected improvement in the decision
+For \(U=I\), controlled-\(e^{i\phi}I\) changes the relative phase of a control in \(|+\rangle\), giving \(\langle X\rangle=\cos\phi\); controlled-\(I\) gives \(1\). The policy should choose this witness, revise its assumption, and state when substitution is valid. This is an analytic example, not a trained-model discovery. Hold out different composition families to test judgment.
 
-Let $U(d,z)$ measure the utility of decision $d$ when the relevant unknown state is $z$. Under an ideal belief $p_t$, the value of investigation $a$ is
-
-$$
-\operatorname{VOI}(a\mid s_t)
-=
-\mathbb{E}_{o\mid s_t,a}
-\left[\max_d \mathbb{E}[U(d,z)\mid s_t,a,o]\right]
--
-\max_d \mathbb{E}[U(d,z)\mid s_t]
--
-\lambda^\top c(a).
-$$
-
-Here $o$ is the possible observation and $c(a)$ records resource costs. The true beliefs, observation distribution, and optimal decisions are unavailable in practice. This equation defines the intended objective; it is not an optimality guarantee for our model.
-
-The implementable first approximation is a ranking over a small action menu. Features include unresolved obligations, dependency on the final answer, source disagreement, availability of a discriminating check, and measured action cost. Estimate value from verified branch outcomes on training roots, then learn to generalize the selection rule. Compare against uncertainty-only, cheapest-first, and uniform focus selection.
-
-Do not reward entropy reduction alone. A confident wrong answer can have low entropy, and a new contradiction can make the investigation more useful while increasing uncertainty.
-
-### 4.3 When to stop
-
-An episode may end with:
-
-- **ANSWER:** the public completion requirements are met and the model supplies a scoped result.
-- **ABSTAIN:** important obligations remain unresolved and no affordable useful action is available.
-- **BUDGET_EXHAUSTED:** a hard limit is reached; preserve the partial result and unresolved obligations.
-- **INFRASTRUCTURE_ERROR:** the run cannot be measured; preserve the failure record.
-
-Learn answer/continue/abstain choices, while the harness enforces hard limits. A learned value estimate alone cannot certify a scientific claim. Confidence thresholds must be calibrated on development data and evaluated under distribution shift.
-
-## 5. Architecture and information boundaries
-
-Use one trainable Qwen policy initially, with deterministic orchestration and separately controlled evidence services. This keeps the mechanism measurable and avoids confusing gains from model training with gains from adding more agents.
+## 4. Research agents, evidence, and memory
 
 ```mermaid
 flowchart TD
-    T["Task, contract, and budget"] --> P["Qwen policy: assess, focus, revise"]
-    P --> A["Typed research action"]
-    A --> R["Source retrieval and inspection"]
-    A --> X["Bounded derivation or execution"]
-    R --> E["Evidence ledger"]
+    T["Task, sources, shared budget"] --> P["Qwen coordinator"]
+    P --> F["Choose question or experiment"]
+    F --> S["Search and read"]
+    F --> X["Execute and verify"]
+    F --> D["Delegate bounded question"]
+    D --> W["Research workers"]
+    W --> E["Evidence ledger"]
+    S --> E
     X --> E
-    E --> M["Claim graph and working memory"]
+    E --> M["Claims, contradictions, memory"]
     M --> P
-    P --> O["Answer or abstention"]
+    P --> O["Result or abstention"]
     O --> J["Independent final evaluator"]
 ```
 
-### 5.1 Policy outputs
+### 4.1 Bounded delegation
 
-Use a small typed action vocabulary:
+Establish a single-agent result first. Then add a coordinator and at most three role-prompted workers: literature investigator, experiment/code investigator, and skeptical reviewer. These are roles, not assumed specialist capabilities.
 
-| Action | Policy responsibility | Harness responsibility |
+A delegation packet includes the question, public context/evidence IDs, expected artifact, tools, allocated budget, stop condition, and parent episode ID. Workers return claims, sources/artifact hashes, executed checks, limits, and unresolved alternatives. The coordinator checks consequential results. No recursive worker spawning occurs initially.
+
+Start RL with a trainable coordinator and fixed workers shared by candidate and control. Worker text is an observation, not an imitation target. Later shared-policy training requires every actor's token ownership, behavior probabilities, revision, and trajectory to be recorded. Never treat stale or foreign-worker tokens as on-policy actor samples.
+
+The primary all-role system comparison uses the same frozen base or adapter revision in every role. Stronger external workers are a separately labeled experiment. Charge all workers, failures, messages, summaries, tools, and verification to one episode budget. Parallelism can reduce latency but does not make compute free.
+
+### 4.2 Evidence and memory contracts
+
+| Memory | Content | Update boundary |
 | --- | --- | --- |
-| ASSESS / SELECT | State candidate hypotheses and choose one unresolved obligation | Validate references and budget |
-| SEARCH / READ | Form a focused query or select a document span | Retrieve from the permitted corpus and record source/version |
-| DERIVE | Produce a concise derivation or candidate proof | Route checkable claims to the appropriate verifier |
-| EXECUTE / VERIFY | Propose a small discriminating program, simulation, or public check | Execute in isolation and return authentic diagnostics |
-| REVISE | Update a claim and explain the evidence dependency briefly | Append the revision; preserve contradictory and superseded records |
-| COMPRESS | Propose a compact working-state summary | Preserve evidence identifiers and required unresolved obligations |
-| ANSWER / ABSTAIN | Return a result with scope and evidence | Close the episode and invoke the separate final evaluator |
+| Parameters/adapter | Foundations and investigation policy | Offline versioned RL |
+| Working memory | Hypotheses, assumptions, dependencies, contradictions, evidence IDs | Bounded within one episode |
+| External memory | Versioned sources and independently checked findings | Admission gates; read-only during primary testing |
 
-The learner produces concise decision records, source references, and checkable derivations. Training does not require inaccessible private reasoning from a teacher. A teacher's fluent explanation cannot substitute for an observed tool result.
+Keep append-only events and content-addressed artifacts. Sources record URI, revision, retrieval time, exact span/hash, and scope. Experiments record code/config/data hashes, environment, seeds, raw results, and verdict. An API document does not certify generated code.
 
-### 5.2 Claim and evidence ledgers
+Separate model confidence from authenticated verification. Preserve contradictions and superseded claims. Compression retains unresolved obligations and recoverable evidence pointers. A vector hit or a vote among agents is not a truth label.
 
-Each claim records its identity, statement, assumptions, dependency IDs, unresolved question, supporting and contradicting evidence IDs, proposed status, confidence estimate, and revision history.
+Retrieved text and worker output cannot change task rules, rewards, budgets, or permissions. Candidate execution cannot read gold programs or evaluator secrets. No weights or cross-task persistent memories are updated during primary evaluation; continual learning needs a separate chronological study.
 
-The harness owns authenticated verdicts. A policy can propose “supported,” but cannot manufacture a verified status. Store the model's confidence separately from verifier evidence. Confidence becomes a probability only after an explicit calibration procedure demonstrates useful calibration on the relevant distribution.
+## 5. RL tasks and data generation
 
-Evidence records contain source URI or tool ID, content hash, retrieval time, document revision, exact span or artifact reference, query/action hash, candidate hash where relevant, environment/version, and verdict scope. A document may support a definition; it does not automatically prove that generated code satisfies that definition. Multiple mirrors of the same source are not independent corroboration.
+### 5.1 Problem ownership and diversity
 
-### 5.3 Three kinds of memory
+The harness owns roots, contracts, splits, rewards, and adjudication, following the [problem/rollout boundary](PROBLEM_AND_ROLLOUT_BOUNDARY.md). LLMs and agents may propose questions, variants, hypotheses, and solutions. Acceptance requires provenance, meaningful information need, a checkable contract, and semantic review where necessary.
 
-| Memory | Contents | Update rule |
+A task record contains a public problem, permitted environment, completion criteria, evaluator reference, and lineage. Reference solutions are not policy-loss targets. Rollout trajectories come from the current behavior policy. Teachers may help construct environments or private rubrics; their traces, answers, and logits are not imitated.
+
+Include six information-need strata: direct-solvable tasks; one missing fact; multiple dependent gaps; contradictions/false premises; research-to-code; insufficient information. Add problem-discovery tasks where an attractive research agenda contains a decisive flaw. Judge proposed questions by held-out experimental value, not resemblance to a teacher's phrasing.
+
+Cover algorithm families, qubit counts, noise models, assumptions, SDKs, versions, debugging failures, and research workflows. Random parameter changes alone do not establish structural diversity.
+
+### 5.2 Initial mixture
+
+Assign each task one primary bucket so percentages do not double count. These are proposed RL sampling shares.
+
+| Bucket | Share | Examples |
+| --- | ---: | --- |
+| Quantum coding/simulation | 30% | Multi-SDK synthesis, compilation, version-aware repair |
+| Quantum science/theory | 25% | Channels, QEC subproblems, checked counterexamples |
+| Agentic research workflows | 15% | Question selection, experiments, data/repository analysis |
+| General mathematics/physics | 15% | Exact, symbolic, numerical reasoning and boundary cases |
+| General software engineering | 10% | Algorithms, scientific Python, debugging |
+| Instruction/tool contracts | 5% | Machine-checked constraints and valid actions |
+
+Every bucket uses RL. Retention means verifiable general tasks and an explicit reference-policy regularizer, not demonstration replay with next-token loss. Change the mixture only from development coverage and retention evidence. Domain concentration does not by itself prove inevitable expert collapse.
+
+### 5.3 Learnability without SFT
+
+Measure base success and tool compliance. Begin with short, solvable tasks and trusted outcomes, then extend to repairs, dependent searches, experiments, and delegation.
+
+A development diagnostic may sample 16 attempts per training root and inspect roots with roughly 2–12 successes. This is a bounded heuristic, not a permanent filter. Preserve easy, hard, negative-premise, and abstention families in a fixed diagnostic stream.
+
+If all attempts fail, distinguish invalid tasks, API/environment mismatch, missing sources, parser failure, and reasoning difficulty. Simplify the training task, expose a valid public API contract, or decompose it into checkable subproblems. Record hints and withdraw them progressively. Test prompts stay unchanged. If learnability still fails, stop that branch and report the limit; do not silently add SFT.
+
+Pass@G equal to one means at least one success, not all G successes. Only **constant total rewards** imply zero centered policy-reward advantage. All-pass/all-fail groups can retain signal from other declared reward components. Cost variation among failed episodes is not evidence of learning to solve the task; track verified-success support separately.
+
+### 5.4 Splits and initial quantities
+
+Split source families, theorem/algorithm roots, generator ancestry, witness schemas, and document versions before producing paraphrases, translations, trajectories, summaries, or caches. Quarantine derivatives together. Benchmark solutions, hidden checks, target papers, teacher completions, and previous test logs never enter test-time retrieval.
+
+Provisional unbuilt targets are 120 development pilot roots; 2,000 reviewed training roots; 300 disjoint development/calibration roots; and 1,200 private sealed research roots, initially 200 per information-need stratum. A focus pilot uses 200 training states with three candidate investigations each. Adjust final counts using development-only power and cost estimates.
+
+Independent roots/source families, not paraphrase counts, determine sample size. Public benchmark roots remain evaluation-only. Pretraining contamination is unknown; paired base/adapter comparisons do not remove it.
+
+Add new-information tasks using evaluator-authored conventions, APIs, or synthetic scientific worlds created after model freeze. Compare source-present, source-withheld, and misleading-source conditions. This tests evidence use without claiming all public facts are unseen.
+
+### 5.5 Discovery environments from the second reference
+
+These are task/environment designs for on-policy RL, not supervised target traces.
+
+| Archetype | Public actor input | Independent reward/evaluation |
 | --- | --- | --- |
-| Model parameters | Mathematical primitives and learned investigation skills | Offline, versioned SFT/RL updates |
-| Episode working memory | Current hypotheses, evidence pointers, dependencies, unresolved conflicts | Bounded updates during one episode |
-| External persistent memory | Versioned source documents and independently checked reusable findings | Explicit provenance and acceptance gates |
+| Retrospective reconstruction | Authorized pre-publication sources and an unresolved tension | Valid mechanism/predictions, source fidelity, private checked obligations |
+| Anomaly and no-go analysis | Baseline, explicit assumptions, actual failure diagnostics | Correct root cause and a valid proposal under clearly amended assumptions |
+| Cross-domain transfer | A solved mechanism in A and a precisely stated problem in B | A checked mapping, preserved conditions, and executable or formal consequences |
+| Failure → refutation → pivot | Current hypothesis and authentic counterexample/experiment | Justified revision and success on new cases |
 
-No automatic weight update occurs during a test episode. Persistent memory begins read-only in the main benchmark. A later continual-learning study uses chronological tasks, separate memory versions, and a clean evaluation to prevent test answers from leaking into later tasks.
+A proposed “loophole” cannot refute a theorem while retaining all its assumptions. If an assumption changes, state the new problem and resource tradeoff. A cross-domain analogy is not an isomorphism until the mapping and relevant structure are checked.
 
-Use an append-only event log plus structured records for metadata, a content-addressed store for source spans and tool artifacts, and lexical/vector indexes for retrieval. A vector hit supplies a candidate source, not a truth label. Evict irrelevant text from active context while preserving recoverable evidence pointers.
+For retrospective tasks, a teacher may inspect a training-only target paper to propose a private provenance anchor: source roles, synthesis bridge, assumptions, and checkable obligations. The actor receives only authorized precursor evidence. Target-specific anchors, titles, abstracts, future terminology, citations, retrieval hits, and summaries must be audited for leakage. Removing an anchor after generating a privileged trace would not make that trace an unbiased on-policy sample; do not train on it.
 
-Compression must retain pending obligations, assumptions, contradictions, and links to checks. Repeated summaries must not turn a provisional claim into an established fact. All source re-reads and summary generation count toward the episode budget.
+IdeaAnchor and Reconstruction are relevant prior work [R12, R13]. Historical reconstruction measures recovery under a restricted context, not new discovery; anonymization and time cutoffs cannot erase pretraining knowledge. Use controlled new-information tasks and independent checks alongside any retrospective score. A hidden rubric is fallible: it can reward agreement with one known solution and reject a different valid idea.
 
-### 5.4 Trust boundaries
+Add two bounded generation loops:
 
-Retrieved documents and candidate code are untrusted data. Source text cannot redefine the task, tool permissions, reward, or evaluation rules. The retrieval service may access approved sources; the code-execution sandbox has no general network access and cannot read hidden references, training secrets, or the final evaluator.
+- **Adversarial proposal and critique:** generate a small fixed candidate menu, ask a skeptic to seek counterexamples with actual tools, and rerun survivors on independent cases. Tournament rank is a selection heuristic, not truth or reward ground truth.
+- **Evolutionary program search:** record parent/child code, mutations, seeds, metric, and independent reevaluation [R14, R15]. Preserve failures as well as improvements. Introduce useful parents as public task baselines for fresh on-policy RL; do not imitate elite code or explanatory traces.
 
-Keep public development diagnostics separate from sealed final tests. Repeated public checks consume budget and never expose final-test labels. Use explicit time, memory, process, and output limits; a forged “PASS” in model or tool text is not a verifier result.
+A jump selected from thousands of mutations may be noise or evaluator overfitting. Reevaluate improvements on fresh seeds, held-out instances, and a frozen baseline before using them as positive evidence. Charge all proposals, critiques, searches, and rejected mutations to data-generation cost. Begin with a reviewed pilot, not a promise of tens of thousands of profound insights.
 
-## 6. Worked quantum example
+## 6. RL-only training sequence
 
-**Task:** decide whether two subroutines may be substituted inside a coherently controlled circuit.
+### 6.1 Stage A: baseline and lifecycle
 
-1. **Rough understanding.** The policy recalls that global phase is unobservable for a standalone unitary and tentatively considers $U$ and $V=e^{i\phi}U$ interchangeable.
-2. **Identify the gap.** The contract involves a controlled operation. The important question is whether the same equivalence relation survives that composition. Searching for more general definitions of a qubit is low value.
-3. **Inspect evidence.** The policy retrieves the definition of controlled-$U$, records the convention, and constructs a small matrix witness.
-4. **Run a discriminating check.** For $U=I$ and $V=e^{i\phi}I$, prepare the control in $|+\rangle$. Controlled-$V$ changes the control's relative phase, giving $\langle X\rangle=\cos\phi$, while controlled-$U$ gives $1$.
-5. **Revise the claim.** Standalone equivalence up to global phase does not generally justify substitution inside a controlled context. Equality is recovered when the relative phase is a multiple of $2\pi$, under the stated conventions.
-6. **Answer and preserve scope.** Provide the condition, witness, and verification artifact; abstain if a larger task still contains unchecked obligations.
+Run untouched Qwen in direct, one-pass retrieval, and prompted single-agent modes on development roots. Add oracle-evidence diagnostics using the necessary permitted passages. Failure even with oracle evidence indicates an interpretation or reasoning bottleneck.
 
-This is an illustrative analytic case, not an observed trained-model trajectory. It connects to the repository's existing [contextual witness implementation](../src/quantum_posttrain/contextual.py). The new research question concerns whether the model learns to select this check on unseen problems.
+Freeze base weights. Initialize LoRA so the initial policy matches base within a measured numerical tolerance; verify trainable modules and a reference policy with no active adapter. Pass load → rollout → reward → loss → backward → update → checkpoint → fresh-process resume → evaluate, first on a tiny fixture and then the target runtime. Independently audit rewards, masks, probabilities, KL, and parameter movement.
 
-Use additional families involving bit ordering, measurement versus unitary semantics, ancilla reset assumptions, noise-model mismatch, SDK version changes, and theorem assumptions. Verify each family's oracle independently before using it for positive training labels.
+### 6.2 Stage B: short-horizon RL cold start
 
-## 7. Data program
+Begin synchronized with group size 4, one update per complete group, short episodes, discovered attention-projection LoRA targets, and frozen router/base weights. Rank 8/16 and a small development-selected learning-rate grid are candidates, not optima.
 
-### 7.1 Build episodes around genuine information needs
+Learn valid actions, small derivations/circuits, use of authentic diagnostics, and stopping through reward. No supervised warmup occurs. Keep successful and unsuccessful on-policy samples.
 
-Start with six task strata:
+Here SAPO means **Soft Adaptive Policy Optimization**, not another method sharing the acronym [R6]. Reproduce a transparent point-reward clipped control, then compare SAPO from the same checkpoint with matched roots, sampling law, reward, updates, and evaluation. Pin exact equations, normalization, reference KL, and code revision. Neither optimizer is assumed to win.
 
-| Stratum | Information gap | Independent evaluation |
+The SAPO paper reports temperatures 1.0/1.05 in a controlled experiment. The reference's 0.1/0.25 values and creativity-specific settings are unvalidated candidates with potentially different conventions. Smooth gating cannot repair mismatched tokenization, stale policies, or incorrect recurrent-state handling.
+
+### 6.3 Stage C: outcome-based research RL
+
+Extend to search, reading, experiments, repairs, and evidence-linked revision. The episode is the reward unit. Initially train on independently adjudicable tasks; open research remains evaluation until reward reliability is established.
+
+For an infrastructure-valid episode the pilot reward is
+
+$$
+R_i=Y_i-0.05C_i-0.05F_i,
+$$
+
+where \(Y_i\in\{0,1\}\) is checked contract success, \(C_i\in[0,1]\) is normalized total resource use, and \(F_i\in[0,1]\) is the fraction of asserted evidence links proven fabricated. Freeze cost weights/denominators from development. Mandatory evidence is part of success.
+
+Success scores at least 0.90; failure at most zero. Severe permission/provenance violations have a separately declared invalid-action penalty. Infrastructure failures have no invented numeric reward. Abstention fails on answerable tasks and may succeed on adjudicated insufficient-information tasks; report those strata separately.
+
+No bonus is given for verbosity, confidence, queries, worker count, or agreement. Begin with terminal reward; shaping requires a new contract and ablation. Do not repeat final success at every turn.
+
+For the clipped control let \(A_i=R_i-\bar R\), without group-standard-deviation scaling, and
+
+$$
+J(\theta)=\frac1G\sum_i\frac1{N_i}\sum_{k\in\mathcal A_i}
+\min\left(\rho_{ik}A_i,
+\operatorname{clip}(\rho_{ik},1-\epsilon,1+\epsilon)A_i\right)
+-\beta K_{\rm ref}.
+$$
+
+\(\mathcal A_i\) contains actor-generated tokens, \(N_i>0\), and \(\rho_{ik}\) uses the recorded behavior distribution at the actual history. \(K_{\rm ref}\) is full-vocabulary current-to-frozen-base KL averaged over the same eligible histories, or an explicitly versioned and independently checked estimator. Rewards and behavior quantities are detached. Compare length bias before changing this episode normalization.
+
+Prompt, retrieved, tool, padding, and foreign-worker tokens remain context but are masked from actor loss. Masking does not prevent privileged-input leakage. Test masks with sentinel tokens and independent span counting.
+
+For the first probability audit use temperature 1, no truncated top-k/top-p sampling, and no repetition penalty. Any later transform must define behavior support and importance ratios. At identical weights, trainer and rollout log probabilities must agree within a predeclared tolerance, including tokenization, precision, cache/recurrent-state resets, and history.
+
+Keep complete groups and all failed members. Record constant-reward groups, truncation, parse failures, policy lag, and cancellation. Constant rewards give zero policy-reward advantage, while KL can still produce gradients. Bound resampling instead of looping until a mixed group appears.
+
+### 6.4 Stage D: focus and question-selection RL
+
+At a training-only state compare three feasible investigations, including answer-now or abstain where appropriate. Fork immutable public state; pair continuation seeds where feasible and use a fixed continuation policy and matched remaining budget. Independently score final utility and total branch cost.
+
+Use branch outcomes to estimate action advantages for an **RL SELECT update**, recording behavior probabilities and the estimator. For the pilot, present the same finite action menu, estimate each action's continuation utility with disjoint paired samples, sample SELECT from the recorded behavior distribution, and center its estimated utility against that distribution's mean. Apply the declared policy-gradient/importance-ratio objective to the sampled SELECT action only; unchosen branch tokens are not on-policy actor samples. Do not turn the winner into a cross-entropy target, preference pair, or teacher trajectory. Keep ties/unresolved comparisons explicit. Use disjoint training folds for fitted baselines where necessary.
+
+The nearest control receives the same roots, branch exposure, final outcomes, updates, and aggregate generation/verifier budget without action-specific focus rewards. Add random, uncertainty-only, and cheapest-first selection. Charge every discarded branch. Estimated value is relative to the menu and continuation policy, not globally optimal research.
+
+Question discovery is evaluated before privileged witnesses are shown. Teacher-generated questions alone do not demonstrate that the learner can find the right problem.
+
+### 6.5 Stage E: delegation, memory, and calibration
+
+After single-agent gains, train the coordinator to allocate bounded work to fixed workers, request falsifying checks, reconcile evidence, and avoid redundant delegation. Use final utility under the shared budget.
+
+Test structured memory against equally sized generic summaries. Calibrate confidence using a frozen post-hoc mapping on development-calibration roots; this is not language-model SFT. Admit reusable verified findings to external memory only between versioned runs.
+
+No imitation or distillation phase follows RL. Tool-disabled evaluation of the same adapter is a diagnostic; zero-tool memorization is not the deployment objective.
+
+### 6.6 Separate discovery-reward experiment
+
+Binary success remains the initial reliable control. For optimization tasks, add a separate **validity-gated baseline-improvement** contract. Display a reproducible feasible baseline, pin its metric/resources, and state all semantic constraints.
+
+Let \(d=1\) for a metric to maximize and \(d=-1\) for one to minimize, \(\Delta_i=d(m_i-m_0)\), and let \(\Delta_{\rm target}>0\) be fixed on development data. One proposed bounded reward is
+
+$$
+R_i=
+\begin{cases}
+-1,&\text{invalid candidate},\\
+\operatorname{clip}(\Delta_i/\Delta_{\rm target},0,1)-0.05C_i,
+&\text{valid candidate}.
+\end{cases}
+$$
+
+Missing/failed measurement remains VOID, not invalid or zero. An inconclusive noisy improvement needs additional adjudication before assigning a numeric reward. Validity includes public fidelity/accuracy constraints, feasible resources, and independent execution. Report regressions even when clipped to zero improvement. Evaluate on fresh seeds/instances to avoid rewarding benchmark overfitting.
+
+For gate count, latency, and error rate, lower is better; do not use an unsigned “candidate minus baseline” formula. Freeze metric direction, denominators, caps, noise thresholds, and cost weights. Never weaken correctness to buy an apparent optimization gain.
+
+A private provenance rubric may judge a theoretical training task only after reliability, alternative-valid-solution handling, and blind expert agreement are demonstrated. Anchors are evaluator inputs, not proof of truth or immunity to reward hacking. Keep exact/verifiable and judge-dependent results separate.
+
+Diversity is initially a proposal-selection diagnostic. Canonicalize AST/mechanism representations and manually inspect whether differences are substantive. Do not reward unusual language or invalid ideas. A group-relative uniqueness reward couples candidates and changes the objective; do not plug it into ordinary independent-return GRPO/SAPO without a defined joint estimator and tests. Any later bounded diversity bonus requires its own matched experiment and a validity gate.
+
+## 7. Trusted verification
+
+| Track | Accepted evidence | Limit |
 | --- | --- | --- |
-| Known and simple | No material missing information | Exact answer and unnecessary-call rate |
-| Missing fact or convention | Relevant detail exists in permitted material | Correct use of the identified detail |
-| Multiple dependent gaps | Several facts or checks must be combined | Final contract plus prerequisite obligations |
-| Misconception or contradiction | A plausible initial belief conflicts with evidence | Correct revision and resistance to misleading sources |
-| Research-to-code | Retrieved assumptions must become executable behavior | Hidden executable tests under a pinned environment |
-| Insufficient information | Available evidence cannot resolve the task | Correct abstention or qualified conclusion |
+| Formal/symbolic | Accepted proof under explicit assumptions; checked finite identities | CAS agreement or a weaker formal statement does not prove the original claim |
+| Numerical/quantum | Exact small systems, certified bounds, powered tests | Random examples cannot prove a general theorem |
+| SDK/software | Hidden functional tests and circuit semantics | Import/execution success alone is insufficient |
+| Scientific workflow | Reproduced result, held-out prediction, tested hypothesis | A plausible report or invented run is not success |
+| Open research | Blinded review, artifacts, literature assessment | Judge scores alone cannot establish discovery |
 
-Do not force every task to require search. Do not fabricate a “vague” starting response and then count its repair as a model improvement. Collect the policy's actual initial response. Use controlled incomplete-information tasks alongside natural problems, and report the two separately.
+Use independent implementations/backends for critical oracles. Validate positive, negative, metamorphic, contextual, and tamper fixtures. Stochastic tests need tolerance, shots, seeds, confidence, and power; non-rejection is not equivalence.
 
-Use licensed or otherwise authorized snapshots of official SDK documentation, research material, and curated derivations. Candidate source entry points include the official [Qiskit documentation](https://quantum.cloud.ibm.com/docs), [Cirq documentation](https://quantumai.google/cirq), and [PennyLane documentation](https://docs.pennylane.ai/). These are source candidates, not a claim that a corpus has been downloaded or cleared for redistribution. Record version, license, reuse scope, parsing quality, and source family before ingestion. Public availability alone is not a redistribution license.
+Guard against hardcoding, forbidden classical shortcuts, verifier modification, and fabricated citations/results. An AST blacklist alone is insufficient; public contracts, isolation, and semantic checks govern. Legitimate classical preprocessing remains allowed where specified. Stabilizer simulation cannot directly validate arbitrary non-Clifford protocols. Admit only scientifically feasible tasks with appropriate checks.
 
-LLMs may propose problems and wording. The harness reconstructs accepted contracts, independently checks answers, and preserves lineage; semantic review is required when automatic verification cannot establish that the wording matches the contract.
+## 8. Adapter-versus-base benchmark suite
 
-### 7.2 Split before generation and retrieval
+### 8.1 Named suites
 
-Assign splits at the root and source-family level before creating variants, translations, teacher traces, summaries, embeddings, or cached retrieval outputs. Quarantine all derivatives together.
+These are selected evaluations, not downloaded assets or completed runs. Pin actual releases/commits, task IDs, scorers, terms, dependency locks, and images before execution.
 
-For the main mechanistic test, hold out problem roots. Add a stronger transfer slice with unseen source families, document versions, or convention systems. Generic shared reference documents can be allowed in a declared standard-RAG track; record that overlap. In the source-disjoint track, neither those source families nor their derivatives enter training. Evaluation sources may still be available to the policy through its permitted test-time retrieval service.
-
-Exclude benchmark solutions, answer keys, hidden tests, teacher completions, and prior evaluation logs from retrieval. Audit both indexed text and caches. Use canary strings and nearest-neighbor audits to detect leakage. A timestamp split alone does not demonstrate absence from a model's pretraining data.
-
-Create a controlled **new-information** slice: evaluator-authored documents define unfamiliar but coherent APIs or mathematical conventions after the model is frozen. Judge with independently implemented tests. Compare source-present, source-withheld, and misleading-source conditions. This tests whether the system uses available evidence; it does not prove that all real-world facts are novel to the model.
-
-### 7.3 Initial quantities and admission gates
-
-The following are planning ceilings and targets, not existing datasets:
-
-- Pipeline pilot: 120 reviewed development roots, about 20 per stratum; no final claim.
-- Initial SFT pool: target 2,000 training roots and up to 6,000 audited trajectories, including valid direct answers, revisions, and unsuccessful attempts.
-- Development/calibration pool: 300 disjoint roots; keep calibration records separate from policy-fitting batches.
-- Sealed evaluation: provisional target 1,200 roots, approximately 200 per stratum, with the final allocation set by a development-only power analysis.
-- Focus-branch study: begin with 200 training states and three candidate investigations per state. Expand only after adjudication and cost checks pass.
-
-Source families, not paraphrase counts, determine effective diversity. Increase the sealed sample before evaluation if power is insufficient; never generate more variants merely to inflate the independent sample count.
-
-Admission requires a valid contract, source rights, known split, deduplication, replayable evidence, authentic tool outputs, and final adjudication. Preserve rejected and failed trajectories with reasons. Failure examples need appropriate rejection/revision targets; do not imitate failed actions as successful demonstrations.
-
-### 7.4 Episode record to implement
-
-Each versioned record must include:
-
-- episode/task/root/source-family/split IDs and contract hash;
-- model, adapter, tokenizer, prompt, inference mode, seed, and behavior-policy revision;
-- corpus/index manifest, source timestamps, and cache state;
-- the public task, initial answer, claim ledger, and action/observation events;
-- actor-token and observation-token boundaries, masks, and behavior log probabilities when needed;
-- evidence links, claim revisions, compression events, budget consumption, and stop reason;
-- final answer, independent verdict, scoring-contract hash, and infrastructure disposition.
-
-The evaluator appends final verdicts outside the policy-visible transcript. Reject missing provenance or malformed records rather than filling them with plausible defaults.
-
-## 8. Training program
-
-Train reusable investigation behavior, not a script that always searches. Keep task validity and final scoring under the trusted harness throughout.
-
-### 8.1 Stage A: establish the pre-adaptation baselines
-
-Run the pinned model with direct answering, one-pass RAG, and a carefully prompted research loop before training. Use the same source snapshots and declared budgets. Inspect failures to distinguish retrieval failure, source interpretation, bad focus, faulty revision, and insufficient reasoning ability.
-
-An oracle-evidence condition supplies the necessary permitted passages without search. If the model still fails badly, better search selection alone is unlikely to solve the problem. Address interpretation or foundational capability before scaling RL.
-
-### 8.2 Stage B: supervised research trajectories
-
-Begin with LoRA on the existing post-trained checkpoint. Use reviewed trajectories containing actual tool calls and observations, concise claim updates, direct answers when sufficient, and justified abstentions.
-
-Optimize next-token loss on policy-authored actions, decision summaries, revisions, and final responses. Mask system prompts, user inputs, retrieved documents, and execution outputs from target loss. Observations remain available as context. Keep privileged evaluator annotations outside policy-visible inputs entirely; loss masking alone does not prevent information leakage. Validate masks with sentinel tokens and independently counted token spans.
-
-Teach a curriculum from single missing facts to prerequisite chains, contradictory sources, research-to-code tasks, and unfamiliar conventions. Mix in ordinary mathematics/programming tasks to measure and limit regressions. Do not train on sealed evaluation records.
-
-Start with adapter rank 8 or 16 only after module discovery and a memory canary; compare a small development-selected configuration set. A specific rank or learning rate is an experimental choice, not an established optimum. Save optimizer, scheduler, random-number, sampler, and data-cursor state in addition to adapter weights.
-
-### 8.3 Stage C: learn which investigation matters
-
-At a training state:
-
-1. Propose three feasible investigations, including a sensible alternative such as direct completion when appropriate. Use the same action-generation procedure across compared methods.
-2. Fork an immutable copy of the public state and remaining budget for each candidate.
-3. Execute the candidate, then use a fixed continuation policy and matched continuation budget. Pair continuation seeds where practical and record all branches.
-4. Independently score terminal correctness, evidence validity, and total cost.
-5. Create a focus target or pairwise preference only if the observed difference is reliable enough. Label near-ties as unresolved instead of inventing a ranking.
-6. Train SELECT behavior on the adjudicated choice and retain the full branch outcomes for audit.
-
-This estimates value relative to the sampled action menu and continuation policy. It does not reveal the globally best research action. Record branch sampling, uncertainty, and selection bias. Offline evaluator access can supply training labels, but its privileged information must never enter policy-visible state.
-
-Use a matched control with the same roots, branch exposure, verified final answers, teacher tokens, and update budget, but without focus-ranking targets. This separates useful focus supervision from simply buying more successful examples.
-
-A later action-value predictor is optional. First establish that supervised selection beats simple heuristics and outcome-only training.
-
-### 8.4 Stage D: bounded multi-turn reinforcement learning
-
-Run on-policy groups from frozen training roots only after the trajectory and target-device lifecycle passes. Begin with group size 4 and synchronized rollout/learner weights. A research episode, rather than a single final completion, is the unit of reward and accounting.
-
-A simple initial reward is
-
-$$
-R_i = Y_i - 0.05 C_i - 0.05 F_i,
-$$
-
-where $Y_i\in\{0,1\}$ is independently adjudicated contract success, $C_i\in[0,1]$ is normalized measured resource consumption, and $F_i\in[0,1]$ is the fraction of asserted evidence links found fabricated. Define cost as a weighted sum of capped resource-to-budget ratios with nonnegative weights summing to one; freeze those weights and denominators on development data. Set the fabrication fraction to zero when no evidence links are asserted, while still requiring mandatory evidence for success. Fabricated evidence that is necessary to satisfy the contract invalidates $Y_i$; severe provenance or permission violations invalidate success outright.
-
-For answerable tasks, abstention has $Y_i=0$. For explicitly adjudicated insufficient-information tasks, an appropriately scoped abstention can have $Y_i=1$. The policy is not told which evaluation stratum supplies that label. This reward preserves a gap: a successful episode scores at least 0.90, while an unsuccessful episode scores at most 0. Report correctness and abstention separately so the mixture cannot hide avoidance.
-
-Start with terminal reward only. No bonus is awarded for verbosity, number of searches, self-declared clarity, or rising confidence. Add step-level shaping only as a separate ablation with independently verified labels; do not repeat terminal success at every turn.
-
-For complete groups of $G$ episodes, use $A_i=R_i-\frac{1}{G}\sum_j R_j$. A baseline clipped objective is
-
-$$
-J(\theta)=\frac{1}{G}\sum_i\frac{1}{N_i}
-\sum_{k\in\mathcal A_i}
-\left[
-\min\!\left(\rho_{ik} A_i,\operatorname{clip}(\rho_{ik},1-\epsilon,1+\epsilon)A_i\right)
--\beta D_{\mathrm{KL}}\!\left(\pi_\theta(\cdot\mid h_{ik})\Vert\pi_{\rm ref}(\cdot\mid h_{ik})\right)
-\right].
-$$
-
-Here $\mathcal A_i$ contains only policy-generated tokens, $N_i=|\mathcal A_i|>0$, $h_{ik}$ is the actual history including observations, and $\rho_{ik}$ is the current-to-behavior probability ratio of the sampled action token. Pin the reference policy; record the exact KL implementation or any estimator and validate it independently. Use a stable log-probability calculation and explicit clipping configuration.
-
-This equal-episode normalization is a baseline choice, not a new GRPO result. Test length sensitivity against a documented alternative. Preserve complete groups and all unsuccessful members. Quarantine groups with infrastructure-invalid evidence; report their incidence. Do not silently train only on fast or successful episodes. Record zero-variance groups, truncation, parse failures, and policy-version mismatches.
-
-### 8.5 Stage E: calibration and memory consolidation
-
-Calibrate claim/final-answer confidence on a held-out development-calibration set using a predeclared post-hoc mapping or separately validated head. Measure Brier score and risk versus answer coverage. Token entropy and verbal confidence are diagnostic features, not truth probabilities.
-
-Consolidate only independently checked findings into versioned external memory. Distill successful research skills and verified repairs into a new adapter only through a controlled offline dataset. Compare against equal-volume final-answer-only SFT and ordinary repair training. Keep the main test read-only and free of between-task adaptation.
-
-Optional zero-tool distillation measures how much skill transfers without tools. It is not a condition for declaring the tool-using research assistant useful.
-
-## 9. Evaluation and falsification
-
-### 9.1 Baselines that separate the mechanisms
-
-| ID | System | Purpose |
+| Suite | Purpose | Protocol |
 | --- | --- | --- |
-| B0 | Pinned Qwen, direct answer, no tools | Measures initial competence |
-| B1 | Same model with one-pass retrieval | Measures ordinary external knowledge access |
-| B2 | Same model with a tuned prompted research loop | Separates training gains from orchestration |
-| B3 | Research-trajectory SFT with the same action interface | Measures trajectory imitation |
-| B4 | SFT plus outcome-only search RL, same ledger and memory as the candidate | Closest learned-search control |
-| C | B4 plus decision-relevant focus supervision | Primary mechanism comparison |
-| O | Same model with oracle-selected permitted evidence | Diagnoses retrieval versus interpretation limits |
-| L | A stronger available model with matched tools, plus its practical deployment setting | External reference; not the causal proof |
+| [Qiskit HumanEval][R7] | External quantum coding | Native functional Pass@1. Upstream describes 151 tasks. Standard and hard variants share roots; report separately, not as 302 independent tasks. |
+| [QHackBench][R8] | PennyLane generalization | Pinned official tasks/checker; success by difficulty. Separate syntax/execution from correctness; verify obtainable artifacts and terms. |
+| [ScienceAgentBench][R9] | Executable scientific workflows | Official evaluation/settings, completion and cost. Supplement judge-dependent parts with artifact checks/blind review. |
+| [LiveCodeBench][R10] | General coding retention | Frozen release/date window and original code-generation Pass@1. A recent window alone does not establish no pretraining exposure. |
+| [IFEval][R11] | Instruction retention | Pinned official strict prompt/instruction scores, no added tools. |
+| Private clarification/research suite | Focus, new information, experiments | Root-disjoint sealed contracts and independent success checks |
+| [Reconstruction][R13], optional | Literature-based idea recovery | Pinned blind protocol if validated assets are available; report as retrospective recovery, with judge and contamination limitations |
 
-Choose the strongest feasible same-size comparator using development data before opening the sealed evaluation. The incremental focus claim specifically requires C versus B4. If B4 is unavailable, report a narrower comparison and withhold that claim. Label adaptations of published methods as adaptations, not exact reproductions.
+Keep native scores separate from tool-enabled adaptations. Use the frozen reference SDK for official Qiskit scoring; a modern-SDK stress variant is a distinct track. Never silently change tests or tolerances.
 
-Train C and B4 with matched roots, source access, branch exposure, policy architecture, ledger/memory representation, teacher effort, and optimizer/token budgets. Give comparators comparable tuning effort. Account for expensive focus labels in training cost.
+Honor ScienceAgentBench's restriction on redistributing unzipped evaluation assets. Gold programs, evaluator rubrics/scripts, and hidden checks remain outside the actor filesystem. If assets/protocols cannot be validated, mark UNKNOWN and predeclare any replacement before training/model selection. A missing cell cannot become a fabricated substitute score.
 
-For inference, match corpus/index, available tools, public diagnostics, prompt/template where applicable, active context, reasoning mode, decoding, aggregate generated tokens, observation tokens, input-token processing, call limits, and wall-time caps. Report actual use as well as caps. B0 and B1 naturally consume less; compare them on quality-cost curves rather than pretending equal upper limits imply equal spend.
+Public suites may overlap pretraining. Paired base/adapter results establish incremental performance under the protocol, not new discovery. Private new-information/source-disjoint tasks provide complementary evidence.
 
-For an external reference model, record exact product/model version, date, permitted input disclosure, tool configuration, latency, and cost. Do not infer memory size or claim equivalence to all frontier models from one comparison.
+### 8.2 Required comparison matrix
 
-### 9.2 Primary outcome and decision rule
-
-Use the existing specification's separation of science and coding. On answerable tasks, define
-
-$$
-S=0.5\,S_{\rm science}+0.5\,S_{\rm code},
-$$
-
-with preregistered macro weights over task families inside each category. Executable results and fully adjudicated scientific obligations define success. Open-ended research quality receives a separate blinded expert rubric and is not silently merged into exact correctness.
-
-Count malformed answers, unsupported mandatory claims, candidate-caused timeouts, and abstentions on answerable tasks as failures. Insufficient-information tasks form a separate abstention guardrail.
-
-Set the practical improvement target from the development baseline, then freeze it:
-
-$$
-\delta_{\min}=\min\!\left(0.10,\;0.20(1-S_{B,\mathrm{dev}})\right).
-$$
-
-The proposed primary gate is a point improvement of at least $\delta_{\min}$ over the chosen matched comparator, with a positive lower endpoint of the paired 95% interval. This is an engineering target, not a universal publication criterion. If the development score is at ceiling, redesign the benchmark before sealing it rather than accepting a zero-gain target.
-
-Run three independent training seeds for the final candidate and nearest trained control if claiming a stable training benefit. Retain all seeds; choose no winner using test results. Report per-seed results and a prespecified hierarchical paired analysis that accounts for seed variation and source-family/root clustering. Paraphrases and multiple trajectories are not independent test units. Use the development pilot to estimate power and freeze the analysis before testing.
-
-### 9.3 Metrics for “becoming clearer”
-
-| Metric | Definition or interpretation |
-| --- | --- |
-| Success versus budget | Verified completion at 0, 2, 4, and 8 external calls, with token and time use |
-| Recovery from an initial error | Among initially wrong answerable cases, fraction correct at completion |
-| Harmful revision | Among initially correct cases, fraction made wrong during research |
-| Evidence support and coverage | Precision of asserted evidence links plus coverage of required claims |
-| Focus regret | Difference from the best evaluated action in the bounded branch menu, with continuation uncertainty |
-| Confidence calibration | Brier score, reliability curves, and risk at matched answer coverage |
-| Appropriate abstention | Abstention precision/recall on the insufficient-information slice and false-abstention rate elsewhere |
-| Research efficiency | Verified success per measured accelerator-hour, token budget, and wall time |
-| Memory fidelity | Recovery of required evidence/dependencies after compression; lost contradictions |
-| Robustness | Performance under distractors, contradictory/stale documents, missing sources, and tool failures |
-
-Record the initial answer before tool access and use independent scoring afterward. To inspect intermediate checkpoints, an offline evaluator may score frozen prefixes, but its feedback must never influence the live episode. Count any extra answer-generation work used by a checkpoint probe separately.
-
-Do not require every episode's score or confidence to improve monotonically. Measure distributions of helpful and harmful revisions, plus the final quality-cost tradeoff. A lexical “clarity score” or a self-reported confidence curve is insufficient.
-
-### 9.4 Essential ablations and negative controls
-
-1. Remove focus supervision while preserving all other training information and budgets.
-2. Replace focus selection with random, uncertainty-only, and cheapest-first policies.
-3. Compare structured memory with equally sized generic summaries and an uncompressed transcript under the same context cap.
-4. Remove contradiction retention while keeping capacity fixed.
-5. Replace executable intermediate checks with text feedback; keep the final evaluator unchanged.
-6. Supply the same passages in a fixed order to separate retrieval quality from interpretation.
-7. Withhold or corrupt the decisive evidence and test whether the answer changes appropriately.
-8. Evaluate novel conventions/APIs with sources present and absent.
-9. Compare full C with B4 at several matched realized-cost operating points.
-
-Run ablations in stages rather than an unaffordable full factorial. Prioritize the focus removal and matched-data controls. Secondary hypotheses require predeclared multiplicity handling; do not select only favorable task slices afterward.
-
-### 9.5 Guardrails and missing measurements
-
-Proposed guardrails are a two-percentage-point noninferiority margin on general mathematics/programming tasks, no material degradation in confidence calibration at matched coverage, and no unexplained failure concentrated in a priority quantum family. Freeze practical margins from development data and report uncertainty. Unsupported-answer risk must not be hidden by increased abstention.
-
-Use PASS/FAIL for measured outcomes, VOID for invalid infrastructure or evaluator records, and UNKNOWN for unresolved evidence. Candidate-caused resource exhaustion is a failure. Retry infrastructure faults only under a fixed recorded policy. Reconcile every scheduled task and report residual VOID/UNKNOWN counts, conservative bounds, and coverage. Withhold the primary conclusion while missing measurement could reverse it.
-
-A failed hypothesis remains useful evidence. If C does not improve on B4, retain the simpler system and report that focus supervision did not demonstrate incremental value under the tested conditions.
-
-## 10. Resource and runtime plan
-
-### 10.1 Initial episode limits
-
-These are proposed pilot settings to freeze after development profiling, not validated deployment limits.
-
-| Resource | Initial ceiling |
-| --- | --- |
-| External SEARCH/READ/EXECUTE/VERIFY calls combined | 8 per episode |
-| Policy decision rounds | 12, including completion |
-| Policy-generated tokens across the episode | 8,192 |
-| External observation tokens across the episode | 16,384 |
-| Active context at any decision | 16,384 tokens |
-| Cumulative input tokens processed across all model calls | 131,072 |
-| Working-state summary | 2,048 tokens within the context cap |
-| Main exact-task episode wall time | 180 seconds |
-| Code-execution sandbox | 30 seconds, 2 GiB RAM per call initially |
-
-The active context includes task, instructions, summary, retained evidence, and available generation headroom; the harness must reserve space before generating. Re-reading, compression, failed calls, and repeated prompt processing count toward cumulative budgets. A long-proof or simulation track gets a separate frozen profile and must not be pooled into the fast-track cost claim.
-
-The compact context is a research choice, not the model's advertised maximum or a proven optimum. Compare a larger context on development data and report any quality sacrificed by compression.
-
-### 10.2 Compute phases and capacity gate
-
-Use CPU fixtures for contracts and replay, then a small-model lifecycle smoke where useful, then the requested 35B target. A smaller-model result cannot stand in for a Qwen3.6 result.
-
-Provisional per-stage ceilings are 24 accelerator-hours for runtime/canary work, 128 for initial SFT, 256 for RL pilots, and 128 for bounded evaluation. These are stopping budgets for planning; they are neither measured runtime estimates nor authorization to launch jobs in this documentation change. Multi-seed publication experiments and large label generation require a new cost estimate after throughput is measured.
-
-Inspect actual available hardware. For Ascend, validate the driver/CANN/torch-npu stack, model kernels, distributed communication, LoRA injection, rollout engine, and trainer compatibility on the exact devices. Inference support alone does not prove backward-pass or distributed-training support. Test CUDA separately if used. Freeze a working environment rather than relying on broad dependency minima.
-
-Measure resident weights, peak training memory, activation/cache use, adapter/optimizer state, rollout concurrency, and checkpoint overhead. Require headroom before scaling. Initially serialize rollout and training if co-residence is unsafe; do not assume that a particular number of NPUs fits.
-
-Estimate cost from measured useful tokens/second, episode completion rate, and verifier latency. Include source indexing, teacher/branch generation, retrieval, failed runs, and evaluation. Report accelerator-hours by hardware type; unlike devices are not interchangeable units of work.
-
-### 10.3 Reproducibility, recovery, and stopping
-
-Every run records code/model/data/environment hashes, resolved configuration, seeds, budget, scoring contract, and parent checkpoint. Persist each tool result and action ID so resume reuses committed observations without repeating side effects. Checkpoint training state atomically and prove fresh-process reload and resume.
-
-Before expansion, pass load → batch → forward → loss → backward → parameter update → save → terminate → resume → evaluate on the target runtime. Monitor finite loss/gradients, parameter changes, tool validity, coverage, reward-versus-independent-score gaps, memory, cost, and liveness.
-
-Pause on evaluator leakage, fabricated evidence acceptance, nonfinite training, incomplete groups, adapter/version mismatch, repeated tool loops, corrupt checkpoints, or budget exhaustion. Preserve diagnostics and the last valid checkpoint. Repair and revalidate before resuming; do not hide failures by repeatedly restarting unchanged jobs.
-
-## 11. Implementation roadmap
-
-All work packages below are **planned**. Dependencies and exit evidence, rather than calendar promises, determine progress.
-
-| Work package | Depends on | Proposed implementation | Exit evidence |
+| Setting | Untouched base | RL adapter | Isolates |
 | --- | --- | --- | --- |
-| P0: freeze experiment contract | Repository audit | Model/runtime/source inventory; baseline and budget definitions | Resolved manifests, available hardware, known limitations |
-| P1: episode and evidence contracts | P0 | New research record types, immutable event log, typed tool boundary | Replay, malformed-record rejection, provenance and isolation checks |
-| P2: corpus and research tasks | P1 | Source snapshots/index, reviewed roots, split and contamination audit | Pilot tasks with independent oracles; sealed evaluation manifest |
-| P3: prompted loop and baselines | P1–P2 | Budgeted episode runner; direct/RAG/iterative modes | Complete baseline records; oracle-evidence diagnostic |
-| P4: multi-turn SFT | P3 | Token masking, data loader, target LoRA lifecycle | Mask audit, save/resume, development and retention results |
-| P5: focus supervision | P3–P4 | Matched branch runner and adjudicated focus targets | Menu-level value estimates; matched-data control |
-| P6: outcome RL and focus candidate | P4–P5 | Complete-group training and independent reward audit | C versus B4 development results and cost accounting |
-| P7: sealed evaluation and release decision | P6 | Frozen comparisons, ablations, calibration and robustness analysis | Reproducible report, uncertainty, limitations, promotion/rejection |
+| D: direct, no tools | B-D | A-D | Unaided competence/retention |
+| R: identical one-pass retrieval | B-R | A-R | Use of the same external evidence |
+| S: same single-agent harness | B-S | A-S | Adapter effect in iterative research |
+| M: same coordinator/workers | B-M | A-M | Adapter effect with delegation |
+| O: oracle permitted evidence | B-O | A-O | Interpretation versus retrieval bottlenecks |
 
-Assign one accountable owner and one writer per component. Independently review claim-bearing reward, split, verifier, and statistical analysis changes.
+Run this matrix on the private suite. Use native public benchmark conditions first; selected tool variants are additional labeled tracks. Distinguish coordinator-only fixed-worker adaptation from all-role adaptation.
 
-Suggested new modules under `src/quantum_posttrain/research/` are `episodes.py`, `evidence.py`, `memory.py`, `tools.py`, `runner.py`, `focus_data.py`, and `evaluation.py`. These names are an implementation proposal; the modules do not exist in this PR.
+Within each pair match templates/prompts, reasoning mode, context, corpus/index, worker count, diagnostics, decoding, stop rules, aggregate generation/input tokens, tool calls, wall-time and compute caps. Give base prompting comparable development tuning effort. Reset caches, workspaces, and external memory per episode; randomize pair order. Report realized spending and quality-cost curves, not just equal caps.
 
-Add a versioned research-task schema alongside the existing strict one-qubit `Task` rather than silently changing its fields. Preserve existing tests and smoke examples. Extend training with an explicit multi-turn mode; never reinterpret one-shot data as a research episode. Quantum-specific evidence and verifiers stay in this repository; Future-Code may orchestrate jobs without acquiring domain-specific policy assumptions.
+Authenticate weights and adapter activation with manifests/startup checks. Record paths/hashes, trainable targets, and endpoint-to-artifact mapping. Adapter-disabled fresh loads should reproduce base within a declared numerical tolerance. Missing or ignored adapters invalidate comparisons.
 
-## 12. Main risks and decisions
+Also compare focus-trained and outcome-only RL adapters at matched data and training cost. No new SFT comparator is trained. A versioned GPT/Claude system may be an external practical reference with exact date, tools, and cost disclosed.
 
-| Risk | Diagnostic | Decision |
-| --- | --- | --- |
-| The model cannot use correct evidence | Oracle-evidence condition still fails | Improve interpretation/foundations before further search-policy training |
-| Focus labels add only extra data | Matched branch-exposure control closes the gap | Withdraw the focus-mechanism claim |
-| More confidence without more truth | Worsening Brier score or harmful revisions | Recalibrate, fix incentives, reject unsafe candidate |
-| The source contains the final answer | Retrieval/cache contamination audit fails | Invalidate affected evaluation and rebuild a clean sealed set |
-| Compression destroys essential context | Missing dependencies or contradictions | Retain more evidence or use the simpler transcript policy |
-| Search dominates total cost | No advantage on measured quality-cost curves | Reduce scope, improve the index, or retain direct/RAG routing |
-| General skills regress | Noninferiority guardrail fails | Revise training mixture or roll back |
-| Small synthetic tasks overstate success | Gains disappear on unseen natural source families | Restrict claims and broaden data before scale-up |
+### 8.3 Scientific and operational metrics
 
-Proceed to larger training only when the preceding stage supplies valid evidence. Stop a research branch when its best supported result fails the declared practical target and a development-based diagnosis offers no justified next experiment within budget.
+Measure final verified success, functional Pass@1, family scores, and success versus token/call/time/device-hour budgets. Score the initial response before tools independently to measure recovery and harmful revision.
 
-## 13. Deliverables and definition of done
+Additional metrics are question utility, bounded-menu focus regret, valid counterexamples, discriminating experiments, assumption identification, evidence precision/coverage, fabricated evidence, Brier score, risk at matched coverage, appropriate/false abstention, memory fidelity, stale-source robustness, worker recovery, and delegation overhead.
 
-The first implementation milestone is a reproducible system that handles the 120-root pilot through a bounded research loop, records authentic evidence and revisions, and compares direct, one-pass RAG, and iterative behavior. That milestone demonstrates an operational research loop; it does not yet demonstrate a training benefit.
+Open research receives a separate blinded rubric for validity, question importance, reproducibility, evidence, and originality relative to inspected literature. Report reviewer agreement and artifacts. Do not merge fluent judge ratings into executable correctness.
 
-The full research deliverables are:
+## 9. Statistics, falsification, and promotion
 
-- a loadable Qwen adapter and exact environment/model manifests;
-- reviewed training episodes, source/split manifests, and permitted release material;
-- an episode runner with budget enforcement, replay, isolation, and recovery;
-- C/B4 matched training runs and the required baselines/ablations;
-- a frozen evaluation report with all denominators, confidence intervals, cost, calibration, and negative results;
-- a model/system card stating supported tasks, source requirements, limits, and known failures.
+Freeze task IDs, counts, metrics, checkpoint selection, thresholds, and analysis before sealed testing. Select checkpoints only on development data. Test results must not guide curriculum tuning.
 
-Success means demonstrating that the trained system can obtain better supported quantum-science or programming answers through useful investigation, within measured resource limits. Human-brain equivalence, universal research competence, replacement of every frontier model, and publication acceptance are outside the evidence this study can supply.
+Proposed co-primary endpoints are:
+
+1. Quantum external code score \(Q=0.5Q_{\rm Qiskit}+0.5Q_{\rm QHack}\), with prespecified family/difficulty weights and both suites measured.
+2. Private answerable research score \(S\), macro-averaged across the first five information-need strata. Insufficient-information tasks are a separate abstention guardrail.
+
+The main research comparison is A-S versus B-S. For Q this uses a frozen tool-enabled adaptation with unchanged final functional checks, reported separately from official native D scores. Private S uses its frozen research protocol. Tools cannot see official hidden tests or answers.
+
+For each endpoint derive the practical target from its independent development pilot:
+
+$$
+\delta_{\min}=\min(0.10,\;0.20(1-S_{\rm base,dev})).
+$$
+
+Substitute the relevant endpoint in this formula. At ceiling, redesign/reseal before testing. Proposed acceptance requires at least this point gain and a positive paired lower confidence bound. Account for both endpoints, for example with prespecified 97.5% two-sided Bonferroni-adjusted intervals. Report each suite; aggregate gains cannot hide a substantial SDK regression.
+
+Resample paired roots/source-family clusters, preserving standard/hard dependence. Use three independent training seeds for candidate and nearest RL control before claiming stable training benefit; retain all seeds and use a prespecified analysis of seed/root variation. One run is a pilot. Set sample size by development-only power analysis; repeated variants do not solve low power.
+
+For proposed two-percentage-point retention margins, require the lower confidence bound of adapter-minus-base to exceed -0.02, with multiplicity handled in advance. A point estimate within the margin is insufficient. Include exact mathematics/physics holdouts with the coding/instruction guardrails.
+
+Stochastic Pass@1 needs a frozen sample/seed list and estimates single-attempt success; report deterministic first attempts separately. Pass@k needs actual n ≥ k samples and the proper estimator. Research retries consume the episode budget.
+
+Malformed outputs, candidate-caused timeouts, invalid actions, and answerable-task abstentions fail. Retry authenticated infrastructure faults only under the same fixed policy, retaining all spending. Reconcile every task: PASS/FAIL measured, VOID invalid measurement, UNKNOWN missing evidence. Report conservative bounds and withhold promotion when missing cells could reverse the decision.
+
+Essential controls remove focus rewards while matching branch exposure; use random/uncertainty/cheapest focus; supply oracle passages; withhold/corrupt decisive evidence; replace structured memory with equal-length summaries; remove delegation at matched compute; hold out SDK conventions/source families; and disable adapter/tools. Discovery-reward studies additionally compare binary reward, baseline-delta reward, and any validated diversity/rubric branch under matched search budgets.
+
+If the candidate fails the nearest valid control, retain the simpler system and report the negative or narrower result.
+
+## 10. Resources and recovery
+
+### 10.1 Proposed episode profiles
+
+| Resource, shared across agents | Short research | Long scientific workflow |
+| --- | ---: | ---: |
+| External calls | 8 | 32 |
+| Generated tokens | 8,192 | 32,768 |
+| Observation tokens | 16,384 | 65,536 |
+| Aggregate processed input tokens | 131,072 | 524,288 |
+| Active context/call, including generation headroom | 16,384 | 32,768 |
+| Wall time | 180 seconds | 1,800 seconds |
+| Concurrent workers | At most 2 | At most 3 |
+| Delegation depth | 1 | 1 |
+
+These are unvalidated development starting caps. Re-reading, summaries, failures, and duplicated work count. Report profiles separately. Native benchmark limits take precedence for official scores.
+
+### 10.2 MoE and target-runtime gates
+
+Inspect available hardware; lock the actual driver/CANN/torch-npu or CUDA environment, distributed backend, rollout engine, trainer, and PEFT/kernel integration. Inference support does not prove training support; historical device capacity is not current availability.
+
+Measure trainer/rollout probability agreement, recurrent/cache resets, gradients, memory, throughput, routing/entropy diagnostics, and fresh reload. Begin with attention LoRA and frozen router/base. Expert adapters, full-parameter RL, load-balancing changes, 16k–32k exploration, and asynchronous rollout require separate compatibility, cost, and retention evidence. Do not assume weight fit implies training fit or that generic MoE claims justify changing router losses.
+
+Provisional ceilings are 24 device-hours for preflight/canary, 128 for short-horizon RL, 256 for research pilots, and 128 for bounded evaluation. They are planning stop budgets, not runtime estimates or launches in this PR. Include worker/branch generation, indexing, verification, failures, and evaluation. Multi-seed publication experiments need measured cost estimates first.
+
+### 10.3 Resume and stop conditions
+
+Record run/model/adapter/config/data/scorer hashes, environment, seeds, behavior revisions, complete/consumed groups, budgets, and parent checkpoint. Atomically save adapter, optimizer, scheduler, RNG, sampler/cursor, and rollout-consumption state. Prove fresh-process resume and no duplicate training on consumed groups.
+
+Persist tool observations by action ID; inspect an existing remote job before relaunching after disconnection. Use bounded retries and preserve job/checkpoint identity. Budget exhaustion returns partial artifacts and unresolved obligations.
+
+Monitor loss/gradients, updates, KL/ratios, zero-signal groups, entropy, tool validity, family coverage, truncation/lag, memory/cost, and reward-versus-independent-score gaps. Pause on leakage, corrupt evidence, ratio mismatch, nonfinite loss, repeated loops, exhausted budget, or failed retention. Three planned development evaluations without useful gain trigger diagnosis of coverage, reward, runtime, and learnability before more steps.
+
+## 11. Implementation roadmap and completion
+
+All packages are planned; none is asserted implemented by this document.
+
+| Package | Dependency | Deliverable | Exit evidence |
+| --- | --- | --- | --- |
+| P0: inventory/freeze | Audit | Identity/runtime manifests, development protocol, budgets | Actual availability and known limits |
+| P1: research contracts | P0 | Episodes, ledgers, isolated tools, replay | Malformed/forged evidence rejected |
+| P2: data/baselines | P1 | Splits, 120-root pilot, D/R/S/O runs | Independent contracts and complete records |
+| P3: RL lifecycle | P2 | Group rollout, actor masks, objective, LoRA resume | Independent loss/KL and target-device canary |
+| P4: research RL | P3 | Outcome RL and retention mix | Paired development gain or rejection |
+| P5: focus/discovery RL | P4 | Branch runner, SELECT RL, discovery environments | Matched-exposure controls and useful-question evidence |
+| P6: agents/memory | P4; P5 optional | Bounded workers, shared accounting, evidence memory | Delegation and memory ablations |
+| P7: sealed evaluation | Frozen candidates | Public/private outputs and analysis | Complete counts, uncertainty, decision |
+
+Add versioned research records alongside the strict one-qubit Task. Proposed modules include `episodes.py`, `evidence.py`, `tools.py`, `runner.py`, `focus_rl.py`, `delegation.py`, and `evaluation.py`; these are not implemented APIs.
+
+Quantum contracts, verifiers, and learning objectives stay in this repository. Future-Code remains the project-neutral platform for jobs, dependencies, evidence, budgets, and recovery.
+
+The first operational milestone is a bounded prompted loop with authentic evidence and base comparisons. The first training milestone is a resumable RL adapter with an independently checked update. Neither proves efficacy.
+
+Full completion requires a loadable adapter/manifests, lawful source/task lineage, target-runtime lifecycle, authenticated base/adapter evaluation, nearest RL controls, generalization/retention evidence, full cost/uncertainty, failure analysis, and a model/system card. Scientific discoveries require independent validation of the actual result.
+
+## 12. Decisions on the supplied references
+
+| Suggestion | Decision |
+| --- | --- |
+| SFT, self-distillation, elite-trace imitation | Excluded; task construction and on-policy RL only |
+| SAPO and fixed “creative” temperatures | Reproduce exact conventions; compare on development data without guaranteed benefit |
+| Medium-pass-rate filtering | Bounded diagnostic with easy/hard/family monitoring |
+| General/quantum mixture | Initial RL sampling hypothesis plus retention gates |
+| Privileged provenance anchors | Evaluator-only training signal after leakage and reliability audits |
+| Pre-publication reconstruction | Retrospective diagnostic, not evidence of genuinely new discovery |
+| Multi-agent tournaments | Budgeted candidate selection followed by independent verification |
+| Evolutionary lineage harvesting | Public baselines/environments for fresh RL, not supervised elite targets |
+| Baseline-delta reward | Separate validity-gated contract with metric direction, noise, and fresh-case checks |
+| Diversity multiplier | Defer training until its group-coupled objective/estimator is validated |
+| “No-go bypass” and cross-domain isomorphism | Explicit changed assumptions and checked mappings; no implied theorem violation |
+| Claimed universal breakthrough rates/collapse guarantees | Do not import as project evidence or expected outcomes |
 
 ## References
 
-Primary sources consulted for the model identity and prior-art positioning. Numerical targets elsewhere in this plan are proposed experimental choices.
+Primary sources for factual scope and prior-art positioning, checked 30 October 2026. Budgets, mixtures, and acceptance targets are proposed project decisions. Optional sources/assets still need version and protocol validation before experiments.
 
-- [R1] Qwen. [Qwen3.6-35B-A3B official model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B). Accessed 27 October 2026.
-- [R2] Lewis et al. [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401). NeurIPS 2020.
-- [R3] Yao et al. [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629). ICLR 2023.
-- [R4] Asai et al. [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection](https://github.com/AkariAsai/self-rag). Official implementation and paper links, ICLR 2024.
-- [R5] Jin et al. [Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning](https://arxiv.org/abs/2503.09516). 2025.
-- [R6] Zheng et al. [DeepResearcher: Scaling Deep Research via Reinforcement Learning in Real-world Environments](https://arxiv.org/abs/2504.03160). 2025. [Official implementation](https://github.com/GAIR-NLP/DeepResearcher).
+- [R1] Qwen. [Official model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B).
+- [R2] Yao et al. [ReAct](https://arxiv.org/abs/2210.03629).
+- [R3] Jin et al. [Search-R1](https://arxiv.org/abs/2503.09516).
+- [R4] Zheng et al. [DeepResearcher](https://arxiv.org/abs/2504.03160).
+- [R5] Gottweis et al. [Co-Scientist](https://arxiv.org/abs/2502.18864).
+- [R6] Gao et al. [Soft Adaptive Policy Optimization](https://arxiv.org/abs/2511.20347), [v2 equations](https://arxiv.org/html/2511.20347v2).
+- [R7] Qiskit community. [Qiskit HumanEval](https://github.com/qiskit-community/qiskit-human-eval); [paper](https://arxiv.org/abs/2406.14712).
+- [R8] Basit et al. [QHackBench](https://arxiv.org/abs/2506.20008).
+- [R9] OSU NLP Group. [ScienceAgentBench](https://github.com/OSU-NLP-Group/ScienceAgentBench).
+- [R10] LiveCodeBench authors. [Official repository](https://github.com/LiveCodeBench/LiveCodeBench).
+- [R11] Zhou et al. [IFEval](https://arxiv.org/abs/2311.07911).
+- [R12] Chen et al. [IdeaAnchor](https://arxiv.org/abs/2610.08781). Its demonstration/distillation phases are not adopted.
+- [R13] Chen et al. [Reconstruction](https://arxiv.org/abs/2608.16645). Optional protocol/asset review required; the supplied match-rate claims are not project evidence.
+- [R14] Romera-Paredes et al. [FunSearch](https://doi.org/10.1038/s41586-023-06924-6).
+- [R15] Novikov et al. [AlphaEvolve](https://arxiv.org/abs/2506.13131).
 
 [R1]: https://huggingface.co/Qwen/Qwen3.6-35B-A3B
-[R2]: https://arxiv.org/abs/2005.11401
-[R3]: https://arxiv.org/abs/2210.03629
-[R4]: https://github.com/AkariAsai/self-rag
-[R5]: https://arxiv.org/abs/2503.09516
-[R6]: https://arxiv.org/abs/2504.03160
+[R2]: https://arxiv.org/abs/2210.03629
+[R3]: https://arxiv.org/abs/2503.09516
+[R4]: https://arxiv.org/abs/2504.03160
+[R5]: https://arxiv.org/abs/2502.18864
+[R6]: https://arxiv.org/abs/2511.20347
+[R7]: https://github.com/qiskit-community/qiskit-human-eval
+[R8]: https://arxiv.org/abs/2506.20008
+[R9]: https://github.com/OSU-NLP-Group/ScienceAgentBench
+[R10]: https://github.com/LiveCodeBench/LiveCodeBench
+[R11]: https://arxiv.org/abs/2311.07911
+[R12]: https://arxiv.org/abs/2610.08781
+[R13]: https://arxiv.org/abs/2608.16645
+[R14]: https://doi.org/10.1038/s41586-023-06924-6
+[R15]: https://arxiv.org/abs/2506.13131
