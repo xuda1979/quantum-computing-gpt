@@ -4,12 +4,15 @@
 
 **Target:** Qwen/Qwen3.6-35B-A3B
 
-**Revision:** 3.0 • 30 October 2026
+**Revision:** 3.1 • 30 October 2026
 
 **Status:** Proposed design; no new training or benchmark results are reported.
-**Repository baseline reviewed:** [ed988f43053c187a623f39befb2439f60bb9b5ac](https://github.com/xuda1979/quantum-computing-gpt/commit/ed988f43053c187a623f39befb2439f60bb9b5ac)
+
+**Repository baseline reviewed:** [921e5440e61e8946d321015989b78ec533fe9859](https://github.com/xuda1979/quantum-computing-gpt/commit/921e5440e61e8946d321015989b78ec533fe9859)
 
 ## 1. Objective and governing decisions
+
+**Core thesis:** carefully designed RL tasks, environments, and feedback should develop strong reusable capabilities within the chosen model's capacity and resource budget. Prioritize reasoning, insight, critical reflection, planning, accurate observation, and effective action, with detailed external knowledge available through tools.
 
 Develop a compact scientific researcher that forms useful hypotheses, notices consequential gaps, asks the right questions, searches authoritative material, designs discriminating experiments, and revises conclusions from evidence. Qwen supplies the reasoning policy; tools, external memory, and bounded research agents extend what it can investigate.
 
@@ -28,6 +31,35 @@ The following decisions govern the program:
 Here **base** means the untouched official checkpoint used to initialize the adapter, not an arbitrary raw pretrained model. A versioned external GPT/Claude system can be a secondary reference; it cannot replace the matched Qwen comparison.
 
 This is the governing R&D plan. The [engineering specification](Qwen36_Quantum_Posttraining_Research_Spec_EN.md) supplies verification and recovery details. Its verifier-allocation study is a separate optional factor. The existing Word specification is a historical snapshot; the current Markdown documents govern this revision.
+
+### 1.1 Capability per unit of compute
+
+The central design variable is the learning experience: what uncertainty the policy encounters, which observations it can obtain, what actions it can take, and which outcomes receive reliable reward. In RL, well-designed data means a distribution of tasks and interactive environments, authentic on-policy attempts, and independently checked feedback. A collection of polished answers alone does not train this program.
+
+Aim to learn reusable procedures: infer an invariant, test an assumption, recognize a causal ambiguity, choose a useful measurement, decompose a goal, inspect a result, and change course. Store enough foundational mathematics, physics, scientific concepts, and programming knowledge in parameters to interpret evidence and detect nonsense. Retrieve long-tail facts, detailed API signatures, and changing literature as needed.
+
+Reasoning and knowledge are coupled. Removing foundational knowledge can impair abstraction and source interpretation; RL does not provide a mechanism to allocate a fixed number of parameters exclusively to “reasoning” or prevent all memorization. “Less reliance on memorization” is a behavioral objective tested on new information and unseen families, not a claim about physically separate memory compartments.
+
+Use the compact policy repeatedly in a closed loop:
+
+**Observe facts → frame the problem → form alternatives → plan a discriminating action → execute → inspect the outcome → revise.**
+
+Actions produce evidence that can improve the next decision. More internal deliberation without new evidence may fail to resolve a factual uncertainty. Tools and workers extend reach, while the core policy still needs enough competence to formulate requests, interpret results, and reject misleading feedback.
+
+### 1.2 Use the smaller model's advantages and measure its limits
+
+Smallness is a resource/design choice, not evidence of stronger reasoning. The following are hypotheses to test on the actual runtime.
+
+| Potential advantage or constraint | Design response | Required measurement |
+| --- | --- | --- |
+| Lower actor compute may permit more useful experiments under a fixed budget | Spend any measured savings on informative rollouts, independent checks, or bounded branches | Verified progress per device-hour and total cost, including failed attempts |
+| Faster or locally hosted inference may support frequent observation/action cycles | Use short decisions, targeted source inspection, and reusable execution state | End-to-end latency and throughput; tool/runtime delays remain charged |
+| A reusable local policy may support several research roles | Share the frozen artifact across bounded workers and preserve independent evidence checks | Team versus single-agent quality at equal aggregate spending |
+| Limited model capacity may restrict concepts, interpretation, and planning depth | Preserve foundations, scaffold learnable tasks, and diagnose oracle-evidence failures | Unaided and oracle-evidence performance on unseen families |
+| Limited effective working memory may lose dependencies | Preserve evidence IDs, contradictions, subgoals, and recoverable source spans | Long-task completion, memory fidelity, and harmful-revision rate |
+| Sparse active computation does not remove total weight/training-state storage | Profile the actual 35B model, adapters, caches, and optimizer | Peak memory, usable concurrency, and useful tokens per second |
+
+Success means better scientific results per measured resource unit and reliable transfer. If extra tool calls or workers erase the expected savings, the system has not demonstrated that advantage. Frontier-model replacement and superior intelligence from small size are not assumed.
 
 ## 2. Starting point and hypotheses
 
@@ -68,6 +100,9 @@ ReAct, Search-R1, DeepResearcher, and Co-Scientist establish relevant precedents
 | --- | --- | --- |
 | Abstraction | Identifies an invariant, assumption, limiting case, or reformulation | Better held-out predictions or simpler correct solutions |
 | Question discovery | Identifies the issue that most affects the answer | Better outcomes than random or uncertainty-only focus |
+| Critical and philosophical reasoning | Examines assumptions, concepts, causal claims, counterarguments, and objective tradeoffs | Valid distinctions, justified reformulations, and better decisions on unseen cases |
+| Planning | Selects subgoals, dependencies, experiments, and stopping conditions | Goal completion, plan repair, and resource efficiency |
+| Observation and action | Distinguishes supplied claims from measured facts and tests the environment | Authentic observations and successful actions on fresh instances |
 | Hypothesis testing | Distinguishes competing explanations | A discriminating experiment and justified update |
 | Evidence acquisition | Reads relevant sources and checks scope/version | Valid source-to-claim links and correct use of new facts |
 | Experiment design | Chooses controls, measurements, and failure criteria | Reproducible artifacts and independent checks |
@@ -87,7 +122,7 @@ $$
 
 where \(x\) is the public task, \(C_t\) the claim/dependency ledger, \(E_t\) accessible evidence, \(M_t\) working memory, and \(b_t\) remaining shared budget. Hidden answers, evaluation tests, and privileged rubric annotations never enter this state.
 
-Use typed actions: **ASSESS, PROPOSE_QUESTION, SELECT, SEARCH, READ, DERIVE, EXECUTE, VERIFY, DELEGATE, REVISE, COMPRESS, ANSWER, ABSTAIN**. A proposed question identifies the affected claim, competing possibilities, a feasible observation, and why that observation matters.
+Use typed actions: **OBSERVE, ASSESS, PROPOSE_QUESTION, SELECT, PLAN, SEARCH, READ, DERIVE, EXECUTE, VERIFY, DELEGATE, REVISE, COMPRESS, ANSWER, ABSTAIN**. OBSERVE requests or inspects an authentic source/measurement; PLAN specifies subgoals, dependencies, expected observations, contingencies, and budget. A proposed question identifies the affected claim, competing possibilities, a feasible observation, and why that observation matters.
 
 The intended value of an investigation is expected improvement in independently verified final utility minus resource cost. Estimate bounded action-menu values on training roots using matched continuations. This is a proxy, not an optimality theorem. Missing information, conflicting sources, ambiguity, reasoning inability, and simulation noise require different remedies.
 
@@ -210,6 +245,28 @@ Add two bounded generation loops:
 - **Evolutionary program search:** record parent/child code, mutations, seeds, metric, and independent reevaluation [R14, R15]. Preserve failures as well as improvements. Introduce useful parents as public task baselines for fresh on-policy RL; do not imitate elite code or explanatory traces.
 
 A jump selected from thousands of mutations may be noise or evaluator overfitting. Reevaluate improvements on fresh seeds, held-out instances, and a frozen baseline before using them as positive evidence. Charge all proposals, critiques, searches, and rejected mutations to data-generation cost. Begin with a reviewed pilot, not a promise of tens of thousands of profound insights.
+
+### 5.6 Deliberately design experiences for the desired capabilities
+
+Generate families around a specific capability and its characteristic failure mode. Preserve a valid independent oracle or adjudication procedure for each admitted task.
+
+| Capability | Task/environment construction | Reward or evaluation evidence |
+| --- | --- | --- |
+| Reasoning and abstraction | Vary surface notation, parameters, representation, and domain while preserving a checked relation | Correct transfer to held-out structures; valid derivations and counterexamples |
+| Insight and question framing | Supply competing explanations or an attractive objective with a consequential hidden assumption | A useful reformulation or discriminating question improves a held-out outcome |
+| Critical/philosophical judgment | Include ambiguous definitions, invalid causal inference, incompatible assumptions, or competing explicit goals | Correctly identifies the ambiguity/assumption and makes a justified scoped decision |
+| Planning | Use environments with dependencies, delayed outcomes, budgets, and feasible alternative plans | Independent goal completion, efficient sequencing, and recovery when a prerequisite changes |
+| Observation | Supply incomplete, stale, or conflicting descriptions alongside authentic inspectable state | Uses the actual measurement/source, preserves uncertainty, and detects planted contradictions |
+| Action and revision | Return genuine execution feedback; introduce controlled disturbances requiring a new action | Repairs the plan and succeeds on fresh conditions without falsifying observations |
+| Knowledge acquisition | Define a new coherent API/convention only in permitted documents | Correct evidence use and adaptation when the decisive documented fact changes |
+
+“Philosophical” does not mean rewarding impressive essays, a particular worldview, or agreement with a teacher. Operational targets include conceptual precision, valid inference, explicit assumptions, epistemic humility, falsifiability, and reasoning about stated goals/tradeoffs. Use checkable cases where possible and separate blinded expert assessments where judgments remain open.
+
+Construct paired interventions. Hold wording/style fixed while changing one decisive fact, assumption, constraint, or tool outcome; the correct action should change. Also change surface wording while preserving the underlying relation; the correct decision should remain stable. Keep both kinds of pair within one root and one split. These controls distinguish sensitivity to evidence from memorized phrases.
+
+Retain each task's intended skill, controlled intervention, prerequisites, authentic observation/action log, expected behavioral consequence, and independent scoring contract. Policy records can be concise beliefs, plans, checks, and revisions; no inaccessible private reasoning trace is required. An RL attempt remains sampled from the behavior policy, including failed actions.
+
+Add a fixed diagnostic stream spanning all capabilities. A task generator that optimizes only for immediate reward may neglect foundations, difficult plans, or uncommon valid strategies. Audit learnability, structural diversity, observation fidelity, label/verifier quality, and learning signal per family before expanding volume.
 
 ## 6. RL-only training sequence
 
@@ -365,6 +422,18 @@ Additional metrics are question utility, bounded-menu focus regret, valid counte
 
 Open research receives a separate blinded rubric for validity, question importance, reproducibility, evidence, and originality relative to inspected literature. Report reviewer agreement and artifacts. Do not merge fluent judge ratings into executable correctness.
 
+### 8.4 Test whether data design produces reusable capability
+
+Add prespecified diagnostics to the existing paired base/adapter evaluation; they do not replace the co-primary endpoints or create an unvalidated aggregate “intelligence score.”
+
+- **Knowledge access versus reasoning:** compare direct, oracle-evidence, and ordinary retrieval conditions. If the correct passage is available but the model cannot reason with it, more search alone has not solved the problem.
+- **Evidence sensitivity:** use new-information and controlled-intervention pairs. Measure whether a changed fact produces the correct changed plan/action, and whether irrelevant wording leaves the decision stable.
+- **Planning and action:** score actual environment goals, violated constraints, recovery, and resources. A plausible plan without execution does not establish action competence.
+- **Critical judgment:** evaluate false-premise detection, causal counterexamples, ambiguity handling, and goal tradeoffs with independent case-specific criteria. Keep open philosophical judgments separate.
+- **Data-design value:** compare deliberate capability-targeted task families with an admissible generic task mixture under matched initial model, unique-root count, source access, generated/updated tokens, verifier cost, and training budget. Separately vary structural diversity and update count; do not attribute a larger or more expensive run's gains solely to “better data.”
+
+Give controls comparable development tuning. Freeze diagnostic families and analysis before testing, report per-capability uncertainty and retention, and label underpowered studies exploratory. Use measured quality-cost curves to decide whether repeated research actions exploit the smaller actor's resource profile. A claim specifically attributable to model size also needs a pinned larger model with disclosed architecture/size under the same harness and resource accounting; a same-size base/adapter pair alone cannot isolate a size effect.
+
 ## 9. Statistics, falsification, and promotion
 
 Freeze task IDs, counts, metrics, checkpoint selection, thresholds, and analysis before sealed testing. Select checkpoints only on development data. Test results must not guide curriculum tuning.
@@ -437,7 +506,7 @@ All packages are planned; none is asserted implemented by this document.
 | --- | --- | --- | --- |
 | P0: inventory/freeze | Audit | Identity/runtime manifests, development protocol, budgets | Actual availability and known limits |
 | P1: research contracts | P0 | Episodes, ledgers, isolated tools, replay | Malformed/forged evidence rejected |
-| P2: data/baselines | P1 | Splits, 120-root pilot, D/R/S/O runs | Independent contracts and complete records |
+| P2: data/baselines | P1 | Capability/intervention matrix, splits, 120-root pilot, D/R/S/O runs | Independent contracts, learnability and coverage audits, complete records |
 | P3: RL lifecycle | P2 | Group rollout, actor masks, objective, LoRA resume | Independent loss/KL and target-device canary |
 | P4: research RL | P3 | Outcome RL and retention mix | Paired development gain or rejection |
 | P5: focus/discovery RL | P4 | Branch runner, SELECT RL, discovery environments | Matched-exposure controls and useful-question evidence |
