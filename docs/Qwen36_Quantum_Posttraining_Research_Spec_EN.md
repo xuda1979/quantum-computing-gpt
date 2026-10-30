@@ -2,9 +2,11 @@
 
 Research and Engineering Specification for Qwen3.6-35B-A3B
 
-Version 3.1 • 30 October 2026 • Execution platform Future-Code
+Version 4.0 • 30 October 2026 • Execution platform Future-Code
 
 **Active scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](LEARNING_TO_CLARIFY_RD_PLAN.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
+
+The [metacognitive RL protocol](METACOGNITIVE_RL_PROTOCOL.md) defines the hypothesis–falsification loop, public/private state boundary, five-category process distribution, English generator prompts, bounded shaping experiment, and four behavioral diagnostics. Preserve correct foundations and use external evidence for detailed/changing facts; selective factual erasure and brain equivalence are not claimed.
 
 ## 1 Objective and research thesis
 
@@ -552,7 +554,13 @@ Progress means optimizer steps, consumed tokens, complete checkpoints, and valid
 
 After the short-horizon lifecycle, extend RL to search/read, compile, simulate, proof checks, and evidence-linked revisions. Use the governing plan's typed actions, shared budgets, and independent final evaluator. Public diagnostics never expose hidden test answers.
 
+Implement the metacognitive protocol's claim states and DESIGN_TEST/BACKTRACK operations with assumption/dependency IDs, scoped evidence, valid-subresult retention, and explicit unresolved obligations. The actor proposes statuses; trusted checks alone populate verification fields. Maintain separate public observation and private evaluator schemas. A printed VERIFIED label, a finite failed-refutation search, or an agent vote is not a proof.
+
+Enforce the orthogonal 40/25/20/10/5 process curriculum alongside domain sampling, with Category 5 capped at 5% of consumed groups and trained actor tokens. Short-horizon tasks simplify all categories rather than bypassing the cap. Keep failed on-policy members and mask supplied flawed attempts/tool observations from actor loss. Use seeded source conflicts and updates for paired comparisons, with live-web robustness reported separately.
+
 Use terminal correctness with cost penalties that preserve a success/failure gap. Average eligible actor-token terms within an episode, then average equally across complete groups. Keep tool observations as context but exclude them from actor loss. Version this objective separately from the fixed-cap single-turn control and compare length bias.
+
+Metacognitive shaping is a separate disabled-by-default research branch after scorer validation. Follow governing-plan Section 6.7 and the protocol's exact reward contract; do not combine it implicitly with this specification's single-turn resource bonus or interval allocator. Independently check success/failure separation, inapplicable versus missing components, fabricated state transitions, and unchanged group accounting. Crafted good/bad contrasts are scorer fixtures, not DPO or imitation data.
 
 Start with one trainable coordinator and fixed workers shared by candidate and control. Later all-role training requires token ownership, behavior probabilities, and policy revisions for every trained actor. No recursive spawning occurs initially. Charge all workers, summaries, retries, tools, and failures to the same aggregate budget.
 
@@ -567,6 +575,8 @@ Use the governing plan's base/adapter matrix: direct, one-pass retrieval, single
 Match prompt/template, reasoning mode, decoding, source/index, workers, active context, aggregate tokens/tools/time, and evaluator. Report realized cost. Compare focus/discovery variants with outcome-only RL controls under matched training exposure and cost. No new SFT baseline is in scope.
 
 Use Qiskit HumanEval, QHackBench, ScienceAgentBench, LiveCodeBench, IFEval, and the private research suite as specified in the governing plan. Resolve real assets, terms, revisions, and scorer environments before launch. Public smoke examples cannot replace sealed evaluation. External frontier-model comparisons are references, not the causal adapter comparison.
+
+Add the four metacognitive dimensions: gap/acquisition judgment, valid hypothesis/falsifier decisions, dependency-aware backtracking, and conflicting-evidence handling. Predeclare opportunity denominators, applicability, unseen-family/source interventions, label-only/renaming controls, and paired uncertainty. These supplement final correctness and the governing co-primary endpoints. A closed-book decline cannot bypass retention gates.
 
 ### 15.2 Scoring and missing measurements
 
@@ -601,6 +611,10 @@ These are engineering promotion targets, not universal publication thresholds. R
 | Lost worker, partial checkpoint, or old weight cache | Idempotent recovery preserves group and model identities |
 | Fast-task selection or repeated unknown groups | Family-coverage and budget audits surface the bias |
 | Sealed task in teacher context or RAG | Contaminated evaluation is invalidated |
+| Correct-looking state labels on wrong actions | Independent consequence checks reject the claimed metacognitive success |
+| Fabricated contradiction or VERIFIED status | Trusted evidence and scoped transition checks reject it |
+| Backtracking from correct work or retaining disproven descendants | Valid-control and dependency-DAG fixtures expose harmful revision |
+| Process-mixture drift or easy-category relabeling | Group/token reconciliation detects breaches; Category 5 remains capped |
 
 Record attack-suite version, attempted cases, bypasses, false rejections, and unresolved classes. For a hand-built or adaptive suite, report its finite counts. Only under a fixed independent sampling distribution does zero bypasses in n trials imply the usual one-sided 95% upper bound `1-0.05^(1/n)`, approximately `3/n`. It is not a guarantee against unseen attacks.
 
@@ -645,7 +659,7 @@ Useful project directories are `contracts/`, `schemas/`, `data/registry/`, `gene
 This YAML specifies interfaces and initial candidates; it is not an already runnable configuration. Required null placeholders must be resolved by discovery or experimental design before launch. Semantic null rewards remain null. The schema must distinguish these cases. Record all resolved backend defaults and create a new experiment when changing precision, hardware, objective, reward, or evaluation rules.
 
 ```yaml
-schema_version: 3
+schema_version: 4
 project: quantum_posttraining
 status: planned
 model:
@@ -667,6 +681,16 @@ data:
   train_manifest_sha256: null
   dev_manifest_sha256: null
   sealed_manifest_sha256: null
+  process_category_shares:
+    hypothesis_falsification: 0.40
+    state_gap_acquisition: 0.25
+    diagnosis_backtracking: 0.20
+    attention_allocation: 0.10
+    foundational_only: 0.05
+  process_dispatch_block_groups: 100
+  maximum_foundational_consumed_group_share: 0.05
+  maximum_foundational_actor_token_share: 0.05
+  domain_process_joint_manifest_sha256: null
   split_keys:
     - source_family
     - generator_family
@@ -733,6 +757,7 @@ verifier:
 training:
   method: reinforcement_learning_only
   sft_enabled: false
+  preference_optimization_enabled: false
   imitation_or_distillation_enabled: false
   microbatch_per_device: 1
   gradient_accumulation: null
@@ -740,6 +765,11 @@ training:
   canary_max_updates: 32
   checkpoint_resume_required: true
 research:
+  metacognitive_protocol: metacognitive_v1
+  metacognitive_shaping_enabled: false
+  metacognitive_scorer_sha256: null
+  metacognitive_reward_contract_sha256: null
+  seeded_evidence_fixture_sha256: null
   interval_mode_enabled: false
   context_challenges_enabled: false
   witness_transfer_enabled: false
@@ -769,7 +799,7 @@ evaluation:
   unresolved_measurements_block_promotion: true
 ```
 
-Enabling interval mode must explicitly switch the RL objective, update the group-consumption policy, and resolve its statistical and acquisition budgets. Preflight rejects the contradictory combination of enabled interval mode with the point objective. Context and witness switches identify ablation branches rather than default claims of improvement. Even without paid services, token, device-hour, verifier, and storage limits must bound the run.
+Enabling interval mode must explicitly switch the RL objective, update the group-consumption policy, and resolve its statistical and acquisition budgets. Preflight rejects the contradictory combination of enabled interval mode with the point objective. Context and witness switches identify ablation branches rather than default claims of improvement. Metacognitive shaping additionally requires a validated scorer, exact governing reward contract, and independently checked multi-turn objective; it cannot silently add terms to the single-turn reward above. Resolve the domain/process joint manifest and accounting windows before any training. Even without paid services, token, device-hour, verifier, and storage limits must bound the run.
 
 ### 18.2 Task record
 

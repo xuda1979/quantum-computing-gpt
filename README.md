@@ -8,6 +8,8 @@ The [Learning to Clarify R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) proposes
 
 The central hypothesis is that carefully designed RL tasks and interactive feedback can build strong reasoning, insight, critical reflection, planning, observation, and action within this model's resource limits. Preserve foundational concepts and obtain detailed/changing facts through sources and tools. Test whether any actor-compute savings support more useful experiments per total budget; small size alone does not establish intelligence, speed, or end-to-end economy.
 
+The [hypothesis-testing and metacognitive RL protocol](docs/METACOGNITIVE_RL_PROTOCOL.md) specifies an observable loop: identify gaps, propose alternatives, design falsifiers, acquire evidence, backtrack on valid contradictions, and form scoped conclusions. It adds a 40/25/20/10/5 process curriculum, English task-generation prompts, claim/action contracts, a strictly capped foundational-only category, bounded process-reward experiments, and four behavioral evaluation dimensions. It adapts the supplied SFT/DPO suggestions to RL-only training and preserves correctness, retention, and external benchmark gates. All of these additions are proposed work.
+
 ## Problem generation and rollout
 
 The harness owns task contracts, accepted roots, dataset splits, expected labels, and verification. It should produce the initial problems from explicit templates and licensed or reviewed roots. LLMs can propose new roots, variants, wording, candidate solutions, or repairs, but those are untrusted proposals until a trusted contract is reconstructed, the answer is independently verified, lineage and deduplication checks pass, and free-form wording receives semantic review.
@@ -77,6 +79,7 @@ The R&D plan specifies untouched-base/adapter comparisons under no tools, identi
 ## Research specification
 
 - [Governing RL-only R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md)
+- [Metacognitive RL curriculum, generation prompts, and evaluation protocol](docs/METACOGNITIVE_RL_PROTOCOL.md)
 - [Current engineering specification](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.md)
 - [Historical Word specification snapshot](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.docx)
 
