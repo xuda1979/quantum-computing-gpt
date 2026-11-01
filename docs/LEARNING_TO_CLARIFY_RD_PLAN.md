@@ -4,19 +4,19 @@
 
 **Target:** Qwen/Qwen3.6-35B-A3B
 
-**Revision:** 4.0 • 30 October 2026
+**Revision:** 5.0 • 1 November 2026
 
 **Status:** Proposed design; no new training or benchmark results are reported.
 
-**Repository baseline reviewed:** [898ee8f42ab425754cc1c1c3306d734140b02005](https://github.com/xuda1979/quantum-computing-gpt/commit/898ee8f42ab425754cc1c1c3306d734140b02005)
+**Repository baseline reviewed:** [606a7f13a1d12a3bda2f4b579e01327586c2a2d0](https://github.com/xuda1979/quantum-computing-gpt/commit/606a7f13a1d12a3bda2f4b579e01327586c2a2d0)
 
 ## 1. Objective and governing decisions
 
-**Core thesis:** train a hypothesis–falsification metacognitive controller through carefully designed RL tasks, environments, and independent feedback. Prioritize reasoning, insight, critical reflection, planning, accurate observation, and effective action, with detailed external knowledge available through tools.
+**Core thesis:** train a hypothesis–falsification metacognitive controller while minimizing reliance on memorized facts and complete solution templates. Direct new learning toward reusable decisions about uncertainty, tests, evidence, resources, and revision. Keep a small, explicit foundation of operating primitives; supply domain knowledge and methods through runtime context and external sources.
 
 Develop a compact scientific researcher that forms useful hypotheses, notices consequential gaps, asks the right questions, searches authoritative material, designs discriminating experiments, and revises conclusions from evidence. Qwen supplies the reasoning policy; tools, external memory, and bounded research agents extend what it can investigate.
 
-The project's advantage should come from **research judgment and verified problem solving**. Parameters should retain mathematical foundations, scientific concepts, programming ability, and reusable investigation skills. Detailed, changing, or rarely needed information can come from external sources. Do not deliberately weaken correct knowledge or force vague answers: an already solved problem should receive a direct answer.
+The project's advantage should come from **research judgment and verified problem solving**. Do not add objectives for recalling encyclopedic facts, standard proofs, or complete domain-specific solution scripts. Preserve the operating competence needed to interpret sources, use tools, and apply basic logic. Detailed facts, specialist formulas, domain methods, and long procedures belong in versioned external resources. Correct pretrained knowledge can remain incidentally; this program neither erases it nor rewards an incorrect answer to demonstrate forgetting.
 
 Human research motivates this behavior. Insight may be a useful abstraction, a missing assumption, a counterexample, a better question, or an experiment that separates competing explanations. This is an engineering analogy, not a claim of brain equivalence. Proprietary GPT/Claude model sizes and memorization capacity are not assumed.
 
@@ -36,7 +36,7 @@ This is the governing R&D plan. The [metacognitive RL protocol](METACOGNITIVE_RL
 
 The central design variable is the learning experience: what uncertainty the policy encounters, which observations it can obtain, what actions it can take, and which outcomes receive reliable reward. In RL, well-designed data means a distribution of tasks and interactive environments, authentic on-policy attempts, and independently checked feedback. A collection of polished answers alone does not train this program.
 
-Aim to learn reusable procedures: infer an invariant, test an assumption, recognize a causal ambiguity, choose a useful measurement, decompose a goal, inspect a result, and change course. Store enough foundational mathematics, physics, scientific concepts, and programming knowledge in parameters to interpret evidence and detect nonsense. Retrieve long-tail facts, detailed API signatures, and changing literature as needed.
+Aim to learn reusable procedures: infer an invariant, test an assumption, recognize a causal ambiguity, choose a useful measurement, decompose a goal, inspect a result, and change course. Define the necessary logical, language/tool, and elementary algebraic primitives in a reviewed register. Acquire specialist concepts, methods, API signatures, and literature through public task context or permitted retrieval when needed; check their applicability before use.
 
 Reasoning and knowledge are coupled. Removing foundational knowledge can impair abstraction and source interpretation; RL does not provide a mechanism to allocate a fixed number of parameters exclusively to “reasoning” or prevent all memorization. “Less reliance on memorization” is a behavioral objective tested on new information and unseen families, not a claim about physically separate memory compartments.
 
@@ -67,9 +67,26 @@ The desired research loop is **identify knowns/unknowns → propose a few compet
 
 The supplied suggestions motivate explicit state tracking, disconfirmation, error diagnosis, attention allocation, and dynamic agent interaction. Their proposed SFT/DPO sequence is adapted to the established RL-only decision: the five categories become distributions of environments for fresh policy rollouts, and crafted positive/negative examples become scorer probes and task proposals. They are not imitation targets or preference-pair optimization data.
 
-Preserve useful foundations and correct knowledge. Prefer retrieval for detailed, changing, source-dependent facts, and require evidence for consequential factual claims. Do not optimize for forgetting, claim that all factual memory can be removed from weights, or accept predictable closed-book deterioration as evidence of success. No continued encyclopedia/textbook pretraining is planned. Knowledge and control skills share the same network; reduced template reliance must be demonstrated behaviorally.
+Preserve useful operating foundations and correct behavior. Require runtime evidence for consequential nonprimitive facts and specialist methods, with supplied context counting as evidence when its scope is clear. Do not optimize for forgetting, claim that all factual memory can be removed from weights, or accept closed-book deterioration as evidence of success. No continued encyclopedia/textbook pretraining is planned. Knowledge and control skills share the same network; reduced template reliance must be demonstrated behaviorally.
 
 Use two or three alternatives when justified by uncertainty; answer directly when the conditions and checks already suffice. Necessary assumptions cannot be skipped because their priority is low. Final correctness and warranted conclusions remain mandatory gates even when metacognitive decisions receive shaping rewards. The four new behavioral dimensions complement the external quantum-code and full research-success endpoints.
+
+### 1.4 Anti-memorization contract
+
+Here **rote memorization** includes both isolated factual recall and rigid reuse of complete reasoning paths. The training priority is to reduce dependence on these two behaviors while learning a transferable investigation policy. Parameter allocation is an aspiration, not a measurable partition of this pretrained network.
+
+| Content or capability | Training treatment | Runtime source and verification |
+| --- | --- | --- |
+| Isolated facts, constants, historical details, literature conclusions | No dedicated recall corpus or recall reward | Attributable task context, primary sources, or measurements; preserve units, date, and scope |
+| Complete proofs, standard problem scripts, domain-specific solution sequences | No imitation targets, repeated template drills, or actor-accessible solved-task cache | Retrieve a method with its assumptions; construct and check the current result incrementally |
+| Minimal logic, language/tool syntax, elementary algebra | Maintain a small versioned primitive register and retention probes | Use directly within explicit preconditions; basic rules are not a stockpile of solved cases |
+| Gap detection, hypothesis selection, falsifier design, retrieval/ASK judgment, backtracking, resource allocation | Main target of RL experiences and checked decision feedback | One observable action at a time, with evidence and dependencies in external working memory |
+
+The [protocol](METACOGNITIVE_RL_PROTOCOL.md#11-primitives-methods-and-pretrained-residue) defines the register, external method records, and boundary against relabeling a complete domain algorithm as a primitive. Minimize new task-specific memorization without claiming that frozen base weights have been cleaned. Low-rank, low-rate updates and few optimizer passes do not prove a low memory footprint.
+
+Three constraints govern implementation: admit environments rather than polished target solutions; require a new observation or checked local step before the next consequential decision; and test whether decisive changes alter actions correctly while irrelevant changes leave them stable. Single-action output constrains the public interface, not the model's unobserved computation. Valid complete code, proofs, and reports remain required task artifacts when the completion contract calls for them.
+
+Open research with no accepted final answer receives a separate blinded assessment of the investigation and artifacts. It cannot enter the first RL reward pipeline without independently adjudicable obligations. Primary deployment value is tool-enabled performance on unseen research structures. External quantum-code and foundation guardrails continue to prevent a controller that talks about research without completing it.
 
 ## 2. Starting point and hypotheses
 
@@ -103,6 +120,7 @@ The existing Qwen path handles CUDA/CPU explicitly; it is not a validated Ascend
 | H5: Skills generalize | External benchmarks and unseen scientific families | Gains remain confined to templates or SDK versions |
 | H6: Falsification control improves decisions | Five-category curriculum/process-reward studies versus matched outcome-only RL and format controls | Labels improve but evidence-sensitive actions, valid refutation, and repair do not |
 | H7: External evidence reduces template dependence | New-information and decisive-source interventions, with foundation retention | Recalled answers ignore changed evidence, or gains require harmful forgetting |
+| H8: Anti-memorization controls improve transfer | Metacognitive RL with versus without audited family controls and verified anti-rote penalties, one factor at a time | Only lexical novelty improves, premise changes are ignored, or invariant controls/verified outcomes regress |
 
 ReAct, Search-R1, DeepResearcher, and Co-Scientist establish relevant precedents [R2–R5]. The primary candidate is **RL for decision-relevant investigation**: choose questions and experiments by independently measured downstream value. Evidence-preserving memory and economical delegation are supporting studies. Search, reflection, external memory, and multiple agents alone are not novelty claims.
 
@@ -183,7 +201,7 @@ The primary all-role system comparison uses the same frozen base or adapter revi
 
 | Memory | Content | Update boundary |
 | --- | --- | --- |
-| Parameters/adapter | Foundations and investigation policy | Offline versioned RL |
+| Parameters/adapter | Registered operating primitives and investigation policy; pretrained residue is not erased | Offline versioned RL |
 | Working memory | Hypotheses, assumptions, dependencies, contradictions, evidence IDs | Bounded within one episode |
 | External memory | Versioned sources and independently checked findings | Admission gates; read-only during primary testing |
 
@@ -192,6 +210,8 @@ Keep append-only events and content-addressed artifacts. Sources record URI, rev
 Separate model confidence from authenticated verification. Preserve contradictions and superseded claims. Compression retains unresolved obligations and recoverable evidence pointers. A vector hit or a vote among agents is not a truth label.
 
 Retrieved text and worker output cannot change task rules, rewards, budgets, or permissions. Candidate execution cannot read gold programs or evaluator secrets. No weights or cross-task persistent memories are updated during primary evaluation; continual learning needs a separate chronological study.
+
+Specialist method records remain external and include preconditions, definitions, source/version, limitations, and a checkable application obligation. Retrieve only the relevant span; validate assumptions against the current claim ledger. Reusing an already loaded method is allowed. Persist reusable, independently checked methods between runs, but keep exact benchmark answers and complete solved-task scripts out of actor-accessible caches. Within-episode scratch may contain the current derivation; it must preserve contradictions and be reset between evaluation roots.
 
 ## 5. RL tasks and data generation
 
@@ -312,6 +332,8 @@ Use 800–1,500 generated tokens as an initial upper-range target for a complete
 
 Start interactive training with versioned source stores and seeded evidence updates, conflicts, staleness, and outages. Actual tools return observations. Pair source snapshots/update schedules/seeds during comparison; live-web robustness is a separate timestamped track. New findings propose future roots and scorer attacks between frozen runs, not DPO replay of selected successful trajectories.
 
+Add the [anti-memorization admission controls](METACOGNITIVE_RL_PROTOCOL.md#51-counterfactual-families-and-memorization-controls): joint semantic/structural deduplication, a pilot cap of four admitted variants per root, decisive-premise and irrelevant-edit controls, method-precondition challenges, and a frozen training-only similarity audit bank. A rare, valid strategy is not rejected merely because it resembles a useful control pattern. Exclude target-completion corpora from policy training; do not remove failed on-policy attempts after generation. Audit standalone forward-solution drills across all labels so the 5% group/token cap cannot be bypassed by relabeling them.
+
 ## 6. RL-only training sequence
 
 ### 6.1 Stage A: baseline and lifecycle
@@ -418,6 +440,12 @@ For eligible infrastructure-valid episodes, success is at least 0.86 and failure
 
 Crafted good/bad examples audit the scorer; they are not DPO or imitation inputs. Keep this study separate from SELECT-specific estimators and group-coupled discovery rewards. Compare against outcome-only RL with matched roots, rollout/update tokens, evaluator access, and total cost. Reject superficial label gains, gratuitous search/ASK, manufactured uncertainty, and false self-criticism.
 
+### 6.8 Controlled anti-memorization experiment
+
+After the process scorer is validated, separately test the [bounded anti-rote extension](METACOGNITIVE_RL_PROTOCOL.md#71-controlled-anti-memorization-penalty). It penalizes independently demonstrated inapplicable template reuse, ignored premise changes, unsupported certainty, and incorrect acquisition decisions. Similarity to a training trace only proposes an audit; a valid shared primitive or correct familiar method receives no copying penalty. Freeze the training-only reference bank, encoder, thresholds, witness checks, applicability, and reward contract before rollout.
+
+Keep the outcome-only and metacognitive controls. First vary the admission/counterfactual curriculum at matched reviewed-root and compute budgets; then vary the penalty while holding that curriculum fixed. Test the single-action harness separately on base and adapter. Do not attribute a combined data/harness/reward change to a single cause. No SFT epoch limit or DPO phase is introduced: use fresh RL groups, one initial optimizer pass per group, a development-selected small learning rate, KL/update monitoring, and bounded exposure to each root. Small updates alone do not prevent memorization.
+
 ## 7. Trusted verification
 
 | Track | Accepted evidence | Limit |
@@ -505,6 +533,14 @@ Freeze opportunity denominators, applicability masks, root clusters, source inte
 
 These dimensions diagnose the research controller alongside external coding/full-workflow correctness. MMLU/GSM8K are not main optimization targets; correct foundations and the existing code/instruction/math guardrails remain required. Lower closed-book scores are neither inevitable nor an automatic acceptable tradeoff. A behavioral-gain claim requires its prespecified paired comparison to the nearest RL control; model promotion also requires Section 9's co-primary and retention gates.
 
+### 8.6 Dedicated anti-memorization diagnostics
+
+Use the [protocol's paired tests](METACOGNITIVE_RL_PROTOCOL.md#81-anti-memorization-measurements) on sealed source, method, and mutation families. Measure correct adaptation to changed premises, correct invariance under irrelevant edits, invalid old-method reuse, new-information source dependence, justified acquisition, and open-investigation quality. Compare decisions, checked artifacts, and final obligations; raw output similarity is only a diagnostic. Identical wording can accompany a correct invariant decision, and different wording can disguise the same invalid template.
+
+Report both members solved for decisive-change pairs, all eligible-pair denominators, root-clustered uncertainty, source-present/withheld/oracle conditions, and complete budget/failure accounts. Pair outcomes cannot be inferred from a good score on only the easier original problem. New conventions created after checkpoint freeze help test evidence use; they cannot establish that all ordinary tasks were absent from pretraining [R16, R17].
+
+A reduced-template-reliance claim requires improvement over the nearest RL control on prespecified decisive-change and invalid-transfer measures, noninferiority on irrelevant-edit and foundation controls, and maintained verified completion. Fix practical margins, multiplicity, and power from development before sealed testing. The broader adapter promotion still requires Section 9. Short-horizon label compliance, reduced recall, or more retrieval alone cannot pass these gates.
+
 ## 9. Statistics, falsification, and promotion
 
 Freeze task IDs, counts, metrics, checkpoint selection, thresholds, and analysis before sealed testing. Select checkpoints only on development data. Test results must not guide curriculum tuning.
@@ -576,11 +612,11 @@ All packages are planned; none is asserted implemented by this document.
 | Package | Dependency | Deliverable | Exit evidence |
 | --- | --- | --- | --- |
 | P0: inventory/freeze | Audit | Identity/runtime manifests, development protocol, budgets | Actual availability and known limits |
-| P1: research contracts | P0 | Public/private episodes, claim/test/dependency ledgers, isolated tools, replay | Malformed/forged states and invalid branch transitions rejected |
-| P2: data/baselines | P1 | Domain/process matrix, 40/25/20/10/5 sampler, splits, 120-root pilot, D/R/S/O runs | Independent contracts, group/token cap audits, source interventions, complete records |
+| P1: research contracts | P0 | Public/private episodes, primitive/method registers, single-action claim/test ledger, isolated tools, replay | Forged states, multi-action bundles, invalid preconditions/transitions, and scratch recovery tested |
+| P2: data/baselines | P1 | Domain/process matrix, 40/25/20/10/5 sampler, splits, 120-root pilot, D/R/S/O runs, bounded variant families | Independent contracts, cross-label group/token caps, deduplication, decisive/invariant/source controls, complete records |
 | P3: RL lifecycle | P2 | Group rollout, actor masks, objective, LoRA resume | Independent loss/KL and target-device canary |
 | P4: research RL | P3 | Outcome RL and retention mix | Paired development gain or rejection |
-| P5: focus/discovery RL | P4 | Separate SELECT, metacognitive-shaping, and discovery studies | Independent scorer/reward audits, matched-exposure controls, evidence-sensitive decisions |
+| P5: focus/discovery RL | P4 | Separate SELECT, metacognitive, anti-rote, and discovery studies | Independent scorer/reward bounds, correct-method false-positive probes, matched-exposure controls, evidence-sensitive decisions |
 | P6: agents/memory | P4; P5 optional | Bounded workers, shared accounting, evidence memory | Delegation and memory ablations |
 | P7: sealed evaluation | Frozen candidates | Public/private outputs, four behavioral dimensions, analysis | Unseen-family and label controls, complete counts, uncertainty, promotion decision |
 
@@ -601,6 +637,11 @@ Full completion requires a loadable adapter/manifests, lawful source/task lineag
 | Five-category 40/25/20/10/5 distribution | Adopt for process sampling alongside domain coverage; cap Category 5 groups and actor tokens |
 | Hypothesis states, falsifiers, conflicts, and backtracking | Adopt explicit claim/test/dependency contracts; trusted evidence governs verification |
 | All facts removed from weights; only a control policy remains | Unsupported mechanism; prefer external evidence while preserving foundations and correct knowledge |
+| Suppress both factual recall and fixed reasoning-template reliance | Adopt as a behavioral objective; no new recall/template corpus, explicit primitive register, external method records, paired transfer tests |
+| Penalize high embedding similarity to stored trajectories | Use a frozen training-only audit bank; require an independent invalid-transfer witness before a bounded penalty |
+| One decision per turn; external scratch; perturbed retrieval | Adopt a typed, budgeted state machine with atomic ledger updates and seeded valid observations; no claim about hidden computation |
+| One or two SFT epochs and a low learning rate prevent memorization | SFT remains excluded; bound RL updates/exposure and measure transfer/retention instead of inferring memory from hyperparameters |
+| Open questions replace correctness rewards | Score scoped checkable obligations; keep genuinely open investigations separate until adjudication is reliable |
 | Final correctness has the lowest unrestricted reward weight | Replace with correctness gates and bounded process shaping so failure cannot outrank success |
 | Mandatory state labels, rivals, search, or 800–1,500-token minimum | Require meaningful observable decisions; allow concise direct answers and only necessary actions |
 | Closed-book decline is certain and acceptable; abandon external benchmarks | No such assumption; retain foundation guardrails, matched external suites, and add four behavioral dimensions |
@@ -618,7 +659,7 @@ Full completion requires a loadable adapter/manifests, lawful source/task lineag
 
 ## References
 
-Primary sources for factual scope and prior-art positioning, checked 30 October 2026. Budgets, mixtures, and acceptance targets are proposed project decisions. Optional sources/assets still need version and protocol validation before experiments.
+Primary sources for factual scope and prior-art positioning. R1 and the new anti-memorization sources R16–R18 were checked 1 November 2026; the other references retain the previous review date of 30 October 2026. Budgets, mixtures, and acceptance targets are proposed project decisions. Optional sources/assets still need version and protocol validation before experiments.
 
 - [R1] Qwen. [Official model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B).
 - [R2] Yao et al. [ReAct](https://arxiv.org/abs/2210.03629).
@@ -635,6 +676,9 @@ Primary sources for factual scope and prior-art positioning, checked 30 October 
 - [R13] Chen et al. [Reconstruction](https://arxiv.org/abs/2608.16645). Optional protocol/asset review required; the supplied match-rate claims are not project evidence.
 - [R14] Romera-Paredes et al. [FunSearch](https://doi.org/10.1038/s41586-023-06924-6).
 - [R15] Novikov et al. [AlphaEvolve](https://arxiv.org/abs/2506.13131).
+- [R16] Wu et al. [Reasoning or Reciting?](https://arxiv.org/abs/2307.02477v3). Counterfactual task variants motivate assumption-sensitive testing; they do not identify a unique internal mechanism.
+- [R17] Xie et al. [On Memorization of Large Language Models in Logical Reasoning](https://arxiv.org/abs/2410.23123v2). Perturbation failures and learned reasoning can coexist; memorization and generalization are not exclusive.
+- [R18] Chu et al. [SFT Memorizes, RL Generalizes](https://arxiv.org/abs/2501.17161). Results in the studied environments motivate an RL comparison, not a guarantee that RL prevents memorization or that RL-only cold start will succeed here.
 
 [R1]: https://huggingface.co/Qwen/Qwen3.6-35B-A3B
 [R2]: https://arxiv.org/abs/2210.03629
@@ -651,3 +695,6 @@ Primary sources for factual scope and prior-art positioning, checked 30 October 
 [R13]: https://arxiv.org/abs/2608.16645
 [R14]: https://doi.org/10.1038/s41586-023-06924-6
 [R15]: https://arxiv.org/abs/2506.13131
+[R16]: https://arxiv.org/abs/2307.02477v3
+[R17]: https://arxiv.org/abs/2410.23123v2
+[R18]: https://arxiv.org/abs/2501.17161

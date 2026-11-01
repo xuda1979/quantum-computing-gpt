@@ -2,17 +2,17 @@
 
 Research and Engineering Specification for Qwen3.6-35B-A3B
 
-Version 4.0 • 30 October 2026 • Execution platform Future-Code
+Version 5.0 • 1 November 2026 • Execution platform Future-Code
 
 **Active scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](LEARNING_TO_CLARIFY_RD_PLAN.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
 
-The [metacognitive RL protocol](METACOGNITIVE_RL_PROTOCOL.md) defines the hypothesis–falsification loop, public/private state boundary, five-category process distribution, English generator prompts, bounded shaping experiment, and four behavioral diagnostics. Preserve correct foundations and use external evidence for detailed/changing facts; selective factual erasure and brain equivalence are not claimed.
+The [metacognitive RL protocol](METACOGNITIVE_RL_PROTOCOL.md) defines the hypothesis–falsification loop, public/private state boundary, five-category process distribution, English generator prompts, bounded shaping experiments, and behavioral diagnostics. Its anti-memorization contract minimizes reliance on both isolated factual recall and fixed domain reasoning paths. Keep a reviewed operating-primitive register, external method records with applicability checks, and one observable decision per turn. Use runtime context/sources for nonprimitive facts and methods. Selective erasure, exclusive parameter allocation, and brain equivalence are not claimed.
 
 ## 1 Objective and research thesis
 
 Develop a quantum science and programming model by post-training a pinned revision of `Qwen/Qwen3.6-35B-A3B`. Improve theoretical reasoning, executable quantum programs, cross-framework translation, circuit optimization, and research analysis while preserving general mathematics, programming, and tool use. The engineering sequence is trusted verification, matched base evaluation, diverse task construction, short-horizon RL cold start, multi-turn research RL, and bounded agent delegation with independent evaluation. Progress depends on evidence gates rather than a fixed calendar.
 
-The central capability thesis is that deliberately designed RL tasks, observations, actions, and independent feedback should teach reusable reasoning, insight, critical judgment, planning, and effective research. Preserve sufficient mathematical/scientific foundations while obtaining long-tail and changing facts through tools. The governing plan defines the capability/intervention matrix and the compact model's resource tradeoffs; these benefits require measurements rather than inference from size alone.
+The central capability thesis is that deliberately designed RL tasks, observations, actions, and independent feedback should teach reusable reasoning, insight, critical judgment, planning, and effective research. Preserve the logical, language/tool, and elementary algebraic competence needed to operate; externalize specialist knowledge and methods. Avoid new recall/template training objectives while measuring retention and evidence interpretation. The governing plan defines the capability/intervention matrix and the compact model's resource tradeoffs; these benefits require measurements rather than inference from size alone.
 
 The proposed research thesis is that **the unit of verification should be the semantic contract and the complete policy-update group**. A verifier should establish what a program means in its intended context, and the training system should acquire additional evidence where it can change or certify the group update. Verified failure witnesses can then define public training-task feedback and independent rewards across mathematical and programming representations, without imitation targets.
 
@@ -423,6 +423,8 @@ Start with the governing plan's 120-root development pilot and work toward 2,000
 
 Use the governing plan's initial RL task mixture and development-only curriculum decisions. Teachers may propose tasks, public source material, or evaluator rubrics after independent admission; do not fit their answers, traces, or logits. Fresh policy rollouts include failures. Teacher confidence and explanation length are not correctness labels.
 
+Apply the metacognitive protocol's pilot maximum of four public variants per root, decisive-premise/invariant controls, semantic/structural deduplication, and frozen per-root group/token exposure budgets. Count source schedules and stochastic replicates separately from roots. Audit the union of standalone forward-solution drills and Category 5 across labels against both 5% caps. Preserve failed on-policy candidates; reject invalid/contaminated environments before rollout. The optional scorer-side similarity bank contains training-only records and remains frozen and inaccessible to the actor.
+
 ### 10.5 Split before transformation
 
 Split source documents, theorem families, algorithm skeletons, seed ancestors, and witness schemas before generating variants. Keep each root's rewrites, SDK translations, counterexamples, and repair history within its assigned split. Maintain training, development, validation, and sealed final-test partitions. The sealed test cannot enter teacher prompts, RAG, tool feedback, curriculum selection, or debugging.
@@ -556,11 +558,15 @@ After the short-horizon lifecycle, extend RL to search/read, compile, simulate, 
 
 Implement the metacognitive protocol's claim states and DESIGN_TEST/BACKTRACK operations with assumption/dependency IDs, scoped evidence, valid-subresult retention, and explicit unresolved obligations. The actor proposes statuses; trusted checks alone populate verification fields. Maintain separate public observation and private evaluator schemas. A printed VERIFIED label, a finite failed-refutation search, or an agent vote is not a proof.
 
+Implement the single-action state machine and an initial 256-token control-message cap as a separately tested research interface. Artifact payloads have their own resolved limits within the same episode budget. Persist intent before dispatch, use idempotency keys or reconcile external jobs/results before retrying, and pause uncertain effects. Atomically commit authentic observations, method/precondition bindings, and ledger changes before the next invocation; test recovery without duplicate effects or lost refutations. PLAN does not execute a multi-action script. A justified ANSWER can complete a task immediately. The interface constrains public decisions, not hidden neural computation.
+
 Enforce the orthogonal 40/25/20/10/5 process curriculum alongside domain sampling, with Category 5 capped at 5% of consumed groups and trained actor tokens. Short-horizon tasks simplify all categories rather than bypassing the cap. Keep failed on-policy members and mask supplied flawed attempts/tool observations from actor loss. Use seeded source conflicts and updates for paired comparisons, with live-web robustness reported separately.
 
 Use terminal correctness with cost penalties that preserve a success/failure gap. Average eligible actor-token terms within an episode, then average equally across complete groups. Keep tool observations as context but exclude them from actor loss. Version this objective separately from the fixed-cap single-turn control and compare length bias.
 
 Metacognitive shaping is a separate disabled-by-default research branch after scorer validation. Follow governing-plan Section 6.7 and the protocol's exact reward contract; do not combine it implicitly with this specification's single-turn resource bonus or interval allocator. Independently check success/failure separation, inapplicable versus missing components, fabricated state transitions, and unchanged group accounting. Crafted good/bad contrasts are scorer fixtures, not DPO or imitation data.
+
+The anti-memorization extension is another disabled-by-default branch: `R_anti = R_meta - 0.04 D`, with D the maximum independently scored copying/premise/certainty/acquisition violation in [0,1]. Similarity requires an invalid-transfer witness before it can contribute. For eligible episodes the success floor is 0.82 and failure ceiling 0.04; independently verify these bounds and valid-method controls. Follow the protocol's exact applicability/missing-evidence rules. Do not add this term to the point-reward, SELECT, discovery, or interval objective by configuration accident.
 
 Start with one trainable coordinator and fixed workers shared by candidate and control. Later all-role training requires token ownership, behavior probabilities, and policy revisions for every trained actor. No recursive spawning occurs initially. Charge all workers, summaries, retries, tools, and failures to the same aggregate budget.
 
@@ -577,6 +583,8 @@ Match prompt/template, reasoning mode, decoding, source/index, workers, active c
 Use Qiskit HumanEval, QHackBench, ScienceAgentBench, LiveCodeBench, IFEval, and the private research suite as specified in the governing plan. Resolve real assets, terms, revisions, and scorer environments before launch. Public smoke examples cannot replace sealed evaluation. External frontier-model comparisons are references, not the causal adapter comparison.
 
 Add the four metacognitive dimensions: gap/acquisition judgment, valid hypothesis/falsifier decisions, dependency-aware backtracking, and conflicting-evidence handling. Predeclare opportunity denominators, applicability, unseen-family/source interventions, label-only/renaming controls, and paired uncertainty. These supplement final correctness and the governing co-primary endpoints. A closed-book decline cannot bypass retention gates.
+
+Add the protocol's anti-memorization pairs: both variants must satisfy their contracts, with correct adaptation to decisive changes and semantic invariance to irrelevant edits. Report invalid old-method reuse, new-information source conditions, acquisition judgment, valid-method/primitive controls, and separately assessed open investigations. Compare curriculum, reward, and single-action harness factors separately at matched budgets. Similarity reduction alone cannot establish improved reasoning or reduced memory dependence.
 
 ### 15.2 Scoring and missing measurements
 
@@ -659,7 +667,7 @@ Useful project directories are `contracts/`, `schemas/`, `data/registry/`, `gene
 This YAML specifies interfaces and initial candidates; it is not an already runnable configuration. Required null placeholders must be resolved by discovery or experimental design before launch. Semantic null rewards remain null. The schema must distinguish these cases. Record all resolved backend defaults and create a new experiment when changing precision, hardware, objective, reward, or evaluation rules.
 
 ```yaml
-schema_version: 4
+schema_version: 5
 project: quantum_posttraining
 status: planned
 model:
@@ -690,6 +698,12 @@ data:
   process_dispatch_block_groups: 100
   maximum_foundational_consumed_group_share: 0.05
   maximum_foundational_actor_token_share: 0.05
+  maximum_forward_drill_union_consumed_group_share: 0.05
+  maximum_forward_drill_union_actor_token_share: 0.05
+  max_public_variants_per_root: 4
+  per_root_exposure_contract_sha256: null
+  primitive_register_sha256: null
+  external_method_manifest_sha256: null
   domain_process_joint_manifest_sha256: null
   split_keys:
     - source_family
@@ -765,10 +779,20 @@ training:
   canary_max_updates: 32
   checkpoint_resume_required: true
 research:
-  metacognitive_protocol: metacognitive_v1
+  metacognitive_protocol: metacognitive_v2
+  one_action_per_research_turn: true
+  research_control_message_max_tokens: 256
+  research_artifact_payload_limits_sha256: null
   metacognitive_shaping_enabled: false
   metacognitive_scorer_sha256: null
   metacognitive_reward_contract_sha256: null
+  anti_memorization_reward_enabled: false
+  anti_memorization_reward_contract_sha256: null
+  invalid_transfer_witness_scorer_sha256: null
+  similarity_audit_enabled: false
+  similarity_audit_bank_sha256: null
+  similarity_encoder_revision: null
+  similarity_threshold: null
   seeded_evidence_fixture_sha256: null
   interval_mode_enabled: false
   context_challenges_enabled: false
@@ -800,6 +824,8 @@ evaluation:
 ```
 
 Enabling interval mode must explicitly switch the RL objective, update the group-consumption policy, and resolve its statistical and acquisition budgets. Preflight rejects the contradictory combination of enabled interval mode with the point objective. Context and witness switches identify ablation branches rather than default claims of improvement. Metacognitive shaping additionally requires a validated scorer, exact governing reward contract, and independently checked multi-turn objective; it cannot silently add terms to the single-turn reward above. Resolve the domain/process joint manifest and accounting windows before any training. Even without paid services, token, device-hour, verifier, and storage limits must bound the run.
+
+For research episodes resolve the primitive/method manifests, exposure and cross-label quota contracts, single-action parser, payload limits, and recovery tests. The anti-memorization branch additionally requires an explicitly selected compatible multi-turn objective, enabled/validated metacognitive shaping, the exact anti-rote reward contract, and independent reward/update tests. If the optional similarity channel is enabled, resolve the frozen training-only bank, encoder, threshold in [0,1), and invalid-transfer witness scorer; otherwise record that channel as disabled in the resolved contract. Reject these switches with the single-turn point objective or interval mode. All fields are proposed schema additions; the current code does not load or enforce this example.
 
 ### 18.2 Task record
 
