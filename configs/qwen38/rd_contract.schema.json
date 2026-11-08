@@ -1,0 +1,1412 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/xuda1979/quantum-computing-gpt/configs/qwen38/rd_contract.schema.json",
+  "title": "Qwen3.8-27B research run contract (planning and resolved identity gates)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "const": "qwen38-rd-contract-v1"
+    },
+    "status": {
+      "enum": [
+        "planning",
+        "resolved"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "lifecycle",
+        "canary",
+        "pilot",
+        "research",
+        "evaluation",
+        "release"
+      ]
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "parent_contract_sha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entrypoints_implemented": {
+          "type": "boolean"
+        },
+        "compatibility_report_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "entrypoints_implemented",
+        "compatibility_report_sha256"
+      ]
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repo_id": {
+          "const": "Qwen/Qwen3.8-27B"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "processor_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "chat_template_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modality": {
+          "const": "text"
+        },
+        "official_posttrained": {
+          "const": true
+        }
+      },
+      "required": [
+        "repo_id",
+        "revision",
+        "snapshot_sha256",
+        "processor_sha256",
+        "chat_template_sha256",
+        "modality",
+        "official_posttrained"
+      ]
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "enum": [
+            "unresolved",
+            "cuda",
+            "ascend"
+          ]
+        },
+        "image_digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dependency_lock_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allocation_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "device_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "data_parallel_world_size": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artifact_root": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "backend",
+        "image_digest",
+        "dependency_lock_sha256",
+        "allocation_id",
+        "device_ids",
+        "data_parallel_world_size",
+        "artifact_root"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "train_manifest_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dev_tune_manifest_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dev_calibration_manifest_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sealed_manifest_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_registry_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "domain_shares": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quantum_code": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "quantum_science": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "agentic_research": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "math_physics": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "general_software": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "instruction_tools": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "quantum_code",
+            "quantum_science",
+            "agentic_research",
+            "math_physics",
+            "general_software",
+            "instruction_tools"
+          ]
+        },
+        "process_shares": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hypothesis_falsification": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "gaps_conflicts": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "assumptions_backtracking": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "attention_resources": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "foundations": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.05
+            }
+          },
+          "required": [
+            "hypothesis_falsification",
+            "gaps_conflicts",
+            "assumptions_backtracking",
+            "attention_resources",
+            "foundations"
+          ]
+        },
+        "standalone_union_cap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.05
+        },
+        "max_groups_per_root": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "targets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "diagnostic_train_roots": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "training_roots": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "dev_tune_roots": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "dev_calibration_roots": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sealed_roots": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "diagnostic_train_roots",
+            "training_roots",
+            "dev_tune_roots",
+            "dev_calibration_roots",
+            "sealed_roots"
+          ]
+        }
+      },
+      "required": [
+        "train_manifest_sha256",
+        "dev_tune_manifest_sha256",
+        "dev_calibration_manifest_sha256",
+        "sealed_manifest_sha256",
+        "source_registry_sha256",
+        "domain_shares",
+        "process_shares",
+        "standalone_union_cap",
+        "max_groups_per_root",
+        "targets"
+      ]
+    },
+    "training": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "sapo"
+        },
+        "project_sft_enabled": {
+          "const": false
+        },
+        "teacher_imitation_enabled": {
+          "const": false
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "alpha": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "dropout": {
+          "const": 0
+        },
+        "exact_target_modules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "learning_rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "adam_betas": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.999999
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.999999
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "adam_epsilon": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "weight_decay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "gradient_clip_norm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "advantage_std_ddof": {
+          "const": 0
+        },
+        "advantage_epsilon": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "sapo_temperature_pos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "sapo_temperature_neg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reference_beta": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reward": {
+          "enum": [
+            "verified_terminal_binary",
+            "verified_success_cost_bonus"
+          ]
+        },
+        "loss_reduction": {
+          "const": "group_mean_episode_actor_token_mean"
+        },
+        "optimizer_passes_per_group": {
+          "const": 1
+        },
+        "rollout_async": {
+          "const": false
+        },
+        "confirmation_seeds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "method",
+        "project_sft_enabled",
+        "teacher_imitation_enabled",
+        "rank",
+        "alpha",
+        "dropout",
+        "exact_target_modules",
+        "learning_rate",
+        "adam_betas",
+        "adam_epsilon",
+        "weight_decay",
+        "gradient_clip_norm",
+        "advantage_std_ddof",
+        "advantage_epsilon",
+        "sapo_temperature_pos",
+        "sapo_temperature_neg",
+        "reference_beta",
+        "reward",
+        "loss_reduction",
+        "optimizer_passes_per_group",
+        "rollout_async",
+        "seed",
+        "confirmation_seeds"
+      ]
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "temperature": {
+          "const": 1
+        },
+        "top_p": {
+          "const": 1
+        },
+        "top_k": {
+          "const": 0
+        },
+        "presence_penalty": {
+          "const": 0
+        },
+        "repetition_penalty": {
+          "const": 1
+        },
+        "beam_search": {
+          "const": false
+        },
+        "grammar_filter": {
+          "const": false
+        },
+        "exact_behavior_logprobs_required": {
+          "const": true
+        },
+        "preserve_history_thinking": {
+          "const": true
+        }
+      },
+      "required": [
+        "temperature",
+        "top_p",
+        "top_k",
+        "presence_penalty",
+        "repetition_penalty",
+        "beam_search",
+        "grammar_filter",
+        "exact_behavior_logprobs_required",
+        "preserve_history_thinking"
+      ]
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "groups_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "episodes_per_group": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "minibatches_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_cohorts": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "groups_per_cohort",
+            "episodes_per_group",
+            "minibatches_per_cohort",
+            "max_cohorts"
+          ]
+        },
+        "canary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "groups_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "episodes_per_group": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "minibatches_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_cohorts": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "groups_per_cohort",
+            "episodes_per_group",
+            "minibatches_per_cohort",
+            "max_cohorts"
+          ]
+        },
+        "pilot": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "groups_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "episodes_per_group": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "minibatches_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_cohorts": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "groups_per_cohort",
+            "episodes_per_group",
+            "minibatches_per_cohort",
+            "max_cohorts"
+          ]
+        },
+        "research": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "groups_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "episodes_per_group": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "minibatches_per_cohort": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_cohorts": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "groups_per_cohort",
+            "episodes_per_group",
+            "minibatches_per_cohort",
+            "max_cohorts"
+          ]
+        }
+      },
+      "required": [
+        "lifecycle",
+        "canary",
+        "pilot",
+        "research"
+      ]
+    },
+    "curriculum": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "arm": {
+          "enum": [
+            "R0",
+            "R1",
+            "R1-MIX",
+            "R2"
+          ]
+        },
+        "within_cell_rule": {
+          "enum": [
+            "stratified_random",
+            "frontier_coverage_uniform"
+          ]
+        },
+        "adaptive_domain_enabled": {
+          "type": "boolean"
+        },
+        "adaptive_domain_allowed_inputs": {
+          "const": [
+            "dev_tune"
+          ]
+        },
+        "controller_window_cohorts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "controller_min_roots_per_skill": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "controller_max_missing_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "domain_max_change": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.05
+        },
+        "domain_max_l1_change": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1
+        },
+        "domain_smoothing": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "uniform_exploration_floor": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1
+        },
+        "evaluation_skill_importance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quantum_coding": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "quantum_research": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mathematics": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "physics": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "agentic_research": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "general_retention": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "quantum_coding",
+            "quantum_research",
+            "mathematics",
+            "physics",
+            "agentic_research",
+            "general_retention"
+          ]
+        },
+        "within_cell_mixture": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "frontier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "undercovered": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "uniform": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "frontier",
+            "undercovered",
+            "uniform"
+          ]
+        },
+        "domain_bounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quantum_code": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            },
+            "quantum_science": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            },
+            "agentic_research": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            },
+            "math_physics": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            },
+            "general_software": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            },
+            "instruction_tools": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "lower": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "upper": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "lower",
+                "upper"
+              ]
+            }
+          },
+          "required": [
+            "quantum_code",
+            "quantum_science",
+            "agentic_research",
+            "math_physics",
+            "general_software",
+            "instruction_tools"
+          ]
+        }
+      },
+      "required": [
+        "arm",
+        "within_cell_rule",
+        "adaptive_domain_enabled",
+        "adaptive_domain_allowed_inputs",
+        "controller_window_cohorts",
+        "controller_min_roots_per_skill",
+        "controller_max_missing_rate",
+        "domain_max_change",
+        "domain_max_l1_change",
+        "domain_smoothing",
+        "uniform_exploration_floor",
+        "evaluation_skill_importance",
+        "within_cell_mixture",
+        "domain_bounds"
+      ]
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planning_device_hours": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "preflight_lifecycle_canary": {
+              "type": "number",
+              "minimum": 0
+            },
+            "short_pilots": {
+              "type": "number",
+              "minimum": 0
+            },
+            "research_confirmation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "evaluation": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "preflight_lifecycle_canary",
+            "short_pilots",
+            "research_confirmation",
+            "evaluation"
+          ]
+        },
+        "resolved_allocation_device_hours": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_wall_hours": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "new_paid_spend_usd": {
+          "const": 0
+        },
+        "pilot_actor_token_cap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "research_actor_token_cap": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "planning_device_hours",
+        "resolved_allocation_device_hours",
+        "resolved_wall_hours",
+        "new_paid_spend_usd",
+        "pilot_actor_token_cap",
+        "research_actor_token_cap"
+      ]
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "measurement_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "native_and_tool_tracks_separate": {
+          "const": true
+        },
+        "final_test_feedback_to_controller": {
+          "const": false
+        },
+        "co_primary": {
+          "const": [
+            "external_quantum_Q",
+            "private_research_S"
+          ]
+        },
+        "retention_margin": {
+          "const": 0.02
+        },
+        "family_alpha": {
+          "const": 0.05
+        },
+        "bootstrap_unit": {
+          "const": "source_root_cluster"
+        },
+        "training_seeds_required_for_stability": {
+          "const": 3
+        },
+        "ibm_aspiration": {
+          "const": "all_pinned_tasks_first_attempt_per_declared_track"
+        },
+        "frontier_parity_claim": {
+          "const": false
+        }
+      },
+      "required": [
+        "measurement_sha256",
+        "native_and_tool_tracks_separate",
+        "final_test_feedback_to_controller",
+        "co_primary",
+        "retention_margin",
+        "family_alpha",
+        "bootstrap_unit",
+        "training_seeds_required_for_stability",
+        "ibm_aspiration",
+        "frontier_parity_claim"
+      ]
+    }
+  },
+  "required": [
+    "$schema",
+    "schema_version",
+    "status",
+    "stage",
+    "run_id",
+    "parent_contract_sha256",
+    "implementation",
+    "model",
+    "runtime",
+    "data",
+    "training",
+    "generation",
+    "profiles",
+    "curriculum",
+    "budgets",
+    "evaluation"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "resolved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "properties": {
+              "entrypoints_implemented": {
+                "const": true
+              },
+              "compatibility_report_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "model": {
+            "properties": {
+              "revision": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              },
+              "snapshot_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "processor_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "chat_template_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "runtime": {
+            "properties": {
+              "backend": {
+                "enum": [
+                  "cuda",
+                  "ascend"
+                ]
+              },
+              "image_digest": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "dependency_lock_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "allocation_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "device_ids": {
+                "minItems": 1
+              },
+              "data_parallel_world_size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "artifact_root": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "data": {
+            "properties": {
+              "train_manifest_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "dev_tune_manifest_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "source_registry_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "training": {
+            "properties": {
+              "exact_target_modules": {
+                "minItems": 2
+              }
+            }
+          },
+          "budgets": {
+            "properties": {
+              "resolved_allocation_device_hours": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "resolved_wall_hours": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "evaluation": {
+            "properties": {
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "resolved"
+          },
+          "stage": {
+            "enum": [
+              "research",
+              "evaluation",
+              "release"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "properties": {
+              "dev_calibration_manifest_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "sealed_manifest_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "adaptive_domain_enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "arm": {
+                "enum": [
+                  "R1-MIX",
+                  "R2"
+                ]
+              },
+              "within_cell_rule": {
+                "const": "frontier_coverage_uniform"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "arm": {
+                "const": "R0"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "adaptive_domain_enabled": {
+                "const": false
+              },
+              "within_cell_rule": {
+                "const": "stratified_random"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "arm": {
+                "enum": [
+                  "R1",
+                  "R1-MIX"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "curriculum": {
+            "properties": {
+              "within_cell_rule": {
+                "const": "frontier_coverage_uniform"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "Schema validation authenticates no file or measurement. The resolver must additionally verify hashes, gates, mixture sums/bounds, SAPO temperature ordering, cohort divisibility, cap identities, provenance, allocation/device topology and compatibility evidence. Counterfactual/C-GRPO/SFT studies require distinct versioned schemas, not a silently altered active contract."
+}
