@@ -1,12 +1,14 @@
+> **Historical engineering specification for Qwen3.6.** Its model assumptions and executable instructions are superseded by the [Qwen3.8-27B governing plan](QWEN38_27B_ADAPTER_RD_PLAN.md) and operational specifications. Optional research ideas below require separately declared experiments; this file is not current launch authority. The Word companion is also historical.
+
 # Quantum Science and Programming Post Training
 
 Research and Engineering Specification for Qwen3.6-35B-A3B
 
 Version 5.0 • 1 November 2026 • Execution platform Future-Code
 
-**Active scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](LEARNING_TO_CLARIFY_RD_PLAN.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
+**Historical scope:** RL-only adaptation of the pinned official checkpoint. The [Learning to Clarify R&D plan](history/LEARNING_TO_CLARIFY_RD_PLAN_QWEN36.md) governs the training sequence, research-agent architecture, task mixture, and adapter-versus-base benchmark contract. This specification supplies engineering details and optional verifier-allocation experiments. No project SFT, demonstration imitation, preference-optimization phase, or trajectory/logit distillation is included. The Word companion is an earlier historical snapshot; current Markdown is authoritative. This revision reports no new model results.
 
-The [metacognitive RL protocol](METACOGNITIVE_RL_PROTOCOL.md) defines the hypothesis–falsification loop, public/private state boundary, five-category process distribution, English generator prompts, bounded shaping experiments, and behavioral diagnostics. Its anti-memorization contract minimizes reliance on both isolated factual recall and fixed domain reasoning paths. Keep a reviewed operating-primitive register, external method records with applicability checks, and one observable decision per turn. Use runtime context/sources for nonprimitive facts and methods. Selective erasure, exclusive parameter allocation, and brain equivalence are not claimed.
+The [metacognitive RL protocol](history/METACOGNITIVE_RL_PROTOCOL_QWEN36.md) defines the hypothesis–falsification loop, public/private state boundary, five-category process distribution, English generator prompts, bounded shaping experiments, and behavioral diagnostics. Its anti-memorization contract minimizes reliance on both isolated factual recall and fixed domain reasoning paths. Keep a reviewed operating-primitive register, external method records with applicability checks, and one observable decision per turn. Use runtime context/sources for nonprimitive facts and methods. Selective erasure, exclusive parameter allocation, and brain equivalence are not claimed.
 
 ## 1 Objective and research thesis
 
@@ -971,3 +973,4 @@ Research references are listed first, followed by implementation sources retaine
 - [S22] Microsoft. [QDK](https://github.com/microsoft/qdk) and [Quantum Katas](https://github.com/microsoft/QuantumKatas).
 - [S23] OpenQASM. [Language specification](https://openqasm.com/).
 - [S24] NVIDIA. [cuQuantum documentation](https://docs.nvidia.com/cuda/cuquantum/latest/).
+

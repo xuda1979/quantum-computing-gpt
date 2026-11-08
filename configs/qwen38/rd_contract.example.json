@@ -1,0 +1,212 @@
+{
+  "$schema": "rd_contract.schema.json",
+  "schema_version": "qwen38-rd-contract-v1",
+  "status": "planning",
+  "stage": "canary",
+  "run_id": null,
+  "parent_contract_sha256": null,
+  "implementation": {
+    "entrypoints_implemented": false,
+    "compatibility_report_sha256": null
+  },
+  "model": {
+    "repo_id": "Qwen/Qwen3.8-27B",
+    "revision": null,
+    "snapshot_sha256": null,
+    "processor_sha256": null,
+    "chat_template_sha256": null,
+    "modality": "text",
+    "official_posttrained": true
+  },
+  "runtime": {
+    "backend": "unresolved",
+    "image_digest": null,
+    "dependency_lock_sha256": null,
+    "allocation_id": null,
+    "device_ids": [],
+    "data_parallel_world_size": null,
+    "artifact_root": null
+  },
+  "data": {
+    "train_manifest_sha256": null,
+    "dev_tune_manifest_sha256": null,
+    "dev_calibration_manifest_sha256": null,
+    "sealed_manifest_sha256": null,
+    "source_registry_sha256": null,
+    "domain_shares": {
+      "quantum_code": 0.3,
+      "quantum_science": 0.25,
+      "agentic_research": 0.15,
+      "math_physics": 0.15,
+      "general_software": 0.1,
+      "instruction_tools": 0.05
+    },
+    "process_shares": {
+      "hypothesis_falsification": 0.4,
+      "gaps_conflicts": 0.25,
+      "assumptions_backtracking": 0.2,
+      "attention_resources": 0.1,
+      "foundations": 0.05
+    },
+    "standalone_union_cap": 0.05,
+    "max_groups_per_root": 8,
+    "targets": {
+      "diagnostic_train_roots": 120,
+      "training_roots": 2000,
+      "dev_tune_roots": 200,
+      "dev_calibration_roots": 100,
+      "sealed_roots": 1200
+    }
+  },
+  "training": {
+    "method": "sapo",
+    "project_sft_enabled": false,
+    "teacher_imitation_enabled": false,
+    "rank": 32,
+    "alpha": 64,
+    "dropout": 0,
+    "exact_target_modules": [],
+    "learning_rate": 1e-06,
+    "adam_betas": [
+      0.9,
+      0.999
+    ],
+    "adam_epsilon": 1e-08,
+    "weight_decay": 0,
+    "gradient_clip_norm": 1,
+    "advantage_std_ddof": 0,
+    "advantage_epsilon": 1e-06,
+    "sapo_temperature_pos": 1,
+    "sapo_temperature_neg": 1.05,
+    "reference_beta": 0.01,
+    "reward": "verified_terminal_binary",
+    "loss_reduction": "group_mean_episode_actor_token_mean",
+    "optimizer_passes_per_group": 1,
+    "rollout_async": false,
+    "confirmation_seeds": [
+      17,
+      29,
+      43
+    ],
+    "seed": 17
+  },
+  "generation": {
+    "temperature": 1,
+    "top_p": 1,
+    "top_k": 0,
+    "presence_penalty": 0,
+    "repetition_penalty": 1,
+    "beam_search": false,
+    "grammar_filter": false,
+    "exact_behavior_logprobs_required": true,
+    "preserve_history_thinking": true
+  },
+  "profiles": {
+    "lifecycle": {
+      "groups_per_cohort": 2,
+      "episodes_per_group": 4,
+      "minibatches_per_cohort": 1,
+      "max_cohorts": 2
+    },
+    "canary": {
+      "groups_per_cohort": 4,
+      "episodes_per_group": 8,
+      "minibatches_per_cohort": 1,
+      "max_cohorts": 8
+    },
+    "pilot": {
+      "groups_per_cohort": 32,
+      "episodes_per_group": 8,
+      "minibatches_per_cohort": 4,
+      "max_cohorts": 64
+    },
+    "research": {
+      "groups_per_cohort": 16,
+      "episodes_per_group": 8,
+      "minibatches_per_cohort": 4,
+      "max_cohorts": 128
+    }
+  },
+  "curriculum": {
+    "arm": "R0",
+    "within_cell_rule": "stratified_random",
+    "adaptive_domain_enabled": false,
+    "adaptive_domain_allowed_inputs": [
+      "dev_tune"
+    ],
+    "controller_window_cohorts": 8,
+    "controller_min_roots_per_skill": 30,
+    "controller_max_missing_rate": 0.05,
+    "domain_max_change": 0.05,
+    "domain_max_l1_change": 0.1,
+    "domain_smoothing": 0.2,
+    "uniform_exploration_floor": 0.1,
+    "evaluation_skill_importance": {
+      "quantum_coding": 0.3,
+      "quantum_research": 0.25,
+      "mathematics": 0.15,
+      "physics": 0.1,
+      "agentic_research": 0.15,
+      "general_retention": 0.05
+    },
+    "within_cell_mixture": {
+      "frontier": 0.7,
+      "undercovered": 0.2,
+      "uniform": 0.1
+    },
+    "domain_bounds": {
+      "quantum_code": {
+        "lower": 0.2,
+        "upper": 0.45
+      },
+      "quantum_science": {
+        "lower": 0.15,
+        "upper": 0.4
+      },
+      "agentic_research": {
+        "lower": 0.1,
+        "upper": 0.3
+      },
+      "math_physics": {
+        "lower": 0.1,
+        "upper": 0.3
+      },
+      "general_software": {
+        "lower": 0.05,
+        "upper": 0.2
+      },
+      "instruction_tools": {
+        "lower": 0.03,
+        "upper": 0.1
+      }
+    }
+  },
+  "budgets": {
+    "planning_device_hours": {
+      "preflight_lifecycle_canary": 24,
+      "short_pilots": 128,
+      "research_confirmation": 256,
+      "evaluation": 128
+    },
+    "resolved_allocation_device_hours": null,
+    "resolved_wall_hours": null,
+    "new_paid_spend_usd": 0,
+    "pilot_actor_token_cap": 8000000,
+    "research_actor_token_cap": 32000000
+  },
+  "evaluation": {
+    "measurement_sha256": null,
+    "native_and_tool_tracks_separate": true,
+    "final_test_feedback_to_controller": false,
+    "co_primary": [
+      "external_quantum_Q",
+      "private_research_S"
+    ],
+    "retention_margin": 0.02,
+    "family_alpha": 0.05,
+    "bootstrap_unit": "source_root_cluster",
+    "training_seeds_required_for_stability": 3,
+    "ibm_aspiration": "all_pinned_tasks_first_attempt_per_declared_track",
+    "frontier_parity_claim": false
+  }
+}

@@ -1,90 +1,50 @@
-# Qwen 3.6 Quantum Post-Training
+# Qwen3.8-27B Quantum Research Post-Training
 
-Research code and engineering specifications for harness-verified quantum science and programming post-training of `Qwen/Qwen3.6-35B-A3B`.
+Build a numerical adapter for **`Qwen/Qwen3.8-27B`**, the official post-trained checkpoint, to improve quantum computing research and coding, relevant mathematics/physics, and bounded agentic R&D. Learn investigation and verified problem solving while using versioned external sources for specialist details.
 
-## Learning to clarify through research
+## Start here: executable research and development specification
 
-The [Learning to Clarify R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) proposes training Qwen3.6-35B-A3B to identify consequential knowledge gaps, investigate them through retrieval and executable checks, revise its understanding, and stop or abstain under a bounded budget. All new adaptation is reinforcement learning from the pinned official checkpoint, with no project SFT or trajectory distillation. The plan covers question discovery, hypothesis testing, evidence use, bounded research agents, validity-gated discovery rewards, and matched adapter-versus-base benchmarks. This is a proposed research direction; the iterative research loop and its training gains have not yet been implemented or demonstrated.
+The [governing R&D plan](docs/QWEN38_27B_ADAPTER_RD_PLAN.md) is the current authority. Future Code should follow its dependency gates, implement missing components, run real target-model canaries, compare authenticated artifacts and package measured results.
 
-The central hypothesis is that carefully designed RL tasks and interactive feedback can build strong reasoning, insight, critical reflection, planning, observation, and action within this model's resource limits. Minimize reliance on both factual recall and fixed reasoning templates: maintain a small reviewed primitive register and obtain specialist facts/methods through runtime context and sources. Test whether any actor-compute savings support more useful experiments per total budget; small size alone does not establish intelligence, speed, or end-to-end economy.
+| Specification | Contents |
+| --- | --- |
+| [Data generation](docs/qwen38/DATA_GENERATION.md) | Sources, ancestry splits, diverse quantum/math/physics/research environments, independent references and mutants, private state, task and episode records, optional verified SFT dataset study |
+| [SAPO training](docs/qwen38/SAPO_TRAINING.md) | Exact loss, behavior/reference policies, token masks, LoRA targets, hardware probes, short/long stages, health gates and transactional resume |
+| [Evaluation-driven question balance](docs/qwen38/ADAPTIVE_MIXTURE.md) | Development skill diagnostics, dependencies, bounded mixture changes, coverage floors and a fixed-mixture comparison |
+| [Evaluation and release](docs/qwen38/EVALUATION_RELEASE.md) | IBM Standard/Hard, quantum/math/physics/agent suites, fresh private tests, native/tool comparisons, statistics, complete denominators and numerical adapter package |
+| [Future Code runbook](docs/qwen38/FUTURE_CODE_RUNBOOK.md) | Implementation DAG, acceptance tests, existing versus planned commands, automation and recovery |
+| [Planning JSON](configs/qwen38/rd_contract.example.json) / [JSON Schema](configs/qwen38/rd_contract.schema.json) | Explicit starting settings and required resolved identities; the example intentionally cannot launch training |
 
-The [hypothesis-testing and metacognitive RL protocol](docs/METACOGNITIVE_RL_PROTOCOL.md) specifies an observable loop: identify gaps, propose alternatives, design falsifiers, acquire evidence, backtrack on valid contradictions, and form scoped conclusions. Revision 2 adds one decision per turn with external working memory, external method records and precondition checks, bounded counterfactual families, and anti-memorization diagnostics. The 40/25/20/10/5 curriculum caps standalone forward-solution drills across category labels. Its English generator prompt creates environments for fresh RL, rather than target traces or DPO pairs.
+The primary route is **RL-only SAPO with no additional initial project SFT**. A supervised data-generation comparison is documented separately and disabled. The controller may rebalance training questions from permitted development evaluations; final-test feedback remains outside that loop. Full IBM coverage and frontier-model competitiveness are aspirations that require complete measurements.
 
-A separate disabled-by-default anti-rote reward experiment penalizes independently checked invalid template reuse, ignored premise changes, unsupported certainty, and incorrect acquisition decisions. Embedding similarity only flags a candidate for checking; correct familiar methods and shared primitives are protected. Evaluate correct changes after decisive premise/source interventions and correct invariance under irrelevant edits, alongside verified research/code completion and foundation retention. No memory-erasure mechanism, parameter reallocation, implemented controller, or training gain is asserted. The supplied SFT/DPO suggestions remain adapted to the established RL-only direction.
+## Implemented today
 
-## Problem generation and rollout
+- Exact one-qubit task generation and global-phase-aware verification.
+- Root-disjoint fixture partitions and an untrusted-proposal boundary.
+- A NumPy low-rank classifier smoke test for training/save/reload/verifier plumbing.
+- Property tests for optional interval-surrogate ideas and a controlled-phase witness.
+- Synthetic 100,000-record data-plumbing stress validation.
+- Legacy supervised Qwen training and one-shot rollout utilities.
 
-The harness owns task contracts, accepted roots, dataset splits, expected labels, and verification. It should produce the initial problems from explicit templates and licensed or reviewed roots. LLMs can propose new roots, variants, wording, candidate solutions, or repairs, but those are untrusted proposals until a trusted contract is reconstructed, the answer is independently verified, lineage and deduplication checks pass, and free-form wording receives semantic review.
+**Not implemented by this plan update:** the production Qwen3.8 SAPO trainer, multi-turn research environment service, adaptive-mixture controller and full benchmark/release pipeline. The runbook specifies their interfaces and acceptance work. Existing CPU success does not establish language-model training, target-device support, generalization, or new benchmark scores. The legacy supervised utility must not be used as the active RL path.
 
-The adapter generates **answers** during rollout. It does not get to choose its own reward or test set. Sample prompts from the frozen training pool, generate complete groups with the pinned behavior policy, and send every candidate to the harness. Use development tasks for tuning and sealed test roots only for final evaluation. See [the problem and rollout boundary](docs/PROBLEM_AND_ROLLOUT_BOUNDARY.md).
-
-## What is implemented
-
-- A deterministic exact one-qubit circuit task generator and global-phase-aware verifier.
-- Root-disjoint split assignment for train, development, and test records.
-- A CPU-only low-rank adapter smoke test that trains, saves, reloads, rolls out, and verifies all 16 generated gate-pair cases.
-- Executable property checks for the proposed interval-based GRPO surrogate bound, its equal-length `lambda=0` degeneration, and a phase-sensitive coherent-control witness.
-- A deterministic 100,000-record synthetic corpus stress runner for generation, root splitting, exact verification, JSONL write/read, and task-contract checks.
-- A legacy supervised Qwen LoRA utility and verified one-shot adapter rollout entry point. The supervised utility is outside the active RL-only program; the planned multi-turn RL trainer is not yet implemented.
-- Current English Markdown R&D/engineering documents and an earlier Word specification snapshot.
-
-The smoke adapter is a small NumPy low-rank classifier used to validate training, serialization, and verifier orchestration. It does **not** fine-tune a language model and does not establish quantum-reasoning gains. Historical validation covers the CPU harness; target-model RL still requires an authenticated checkpoint and a tested training environment.
-
-## Reproduce validation and scale checks
-
-```bash
-python -m unittest discover -s tests -v
-python scripts/validate_research_ideas.py --trials 10000
-python scripts/validate_larger_scale.py \
-  --roots 10000 --variants-per-root 10 \
-  --output runs/scale-validation
-```
-
-The scale runner uses synthetic one-qubit circuits with inserted identity pairs. It tests harness data plumbing and exact-verifier throughput; it does not represent realistic multi-qubit simulator load or distributed service capacity. Measured results and research limitations are in [the validation report](docs/RESEARCH_VALIDATION_REPORT.md). CI runs both the randomized property checks and the 100,000-record corpus check.
-
-## Run the CPU smoke test
+## Reproduce existing CPU fixture checks
 
 ```bash
 python -m pip install -e .
 python -m unittest discover -s tests -v
-qposttrain-smoke --output runs/smoke/adapter.npz
+python scripts/validate_research_ideas.py --trials 10000
+python scripts/validate_larger_scale.py --roots 10000 --variants-per-root 10 --output runs/scale-validation
 ```
 
-The smoke report records training loss, accuracy, adapter and base fingerprints, and the number of independently verified rollouts. The same smoke run is part of CI.
+These commands exercise small exact/synthetic fixtures. The 16 related circuit cases and CPU classifier are insufficient for research capability claims. Historical [validation](docs/RESEARCH_VALIDATION_REPORT.md) and [smoke](docs/SMOKE_TEST_REPORT.md) reports retain their original scope.
 
-## Prepare root-disjoint task files
+The old `train_qwen_lora.py` performs supervised next-token training; `rollout_qwen.py` is a legacy one-shot gate-list evaluator. Neither is the new training/evaluation service. Resolve actual Qwen3.8 model classes, processor/template, hybrid-state kernels, LoRA targets and driver/dependency locks before real target training. CUDA/Ascend availability and inference support must be verified on the assigned runtime.
 
-```bash
-python scripts/prepare_data.py
-```
+## Document compatibility and history
 
-This writes `data/experiment/{train,dev,test}.jsonl` and a root-level split manifest. The fixture has only 16 related tasks, so it demonstrates split mechanics but is not sufficient for model selection or publication evaluation.
+[Learning to Clarify](docs/LEARNING_TO_CLARIFY_RD_PLAN.md) and the [metacognitive protocol](docs/METACOGNITIVE_RL_PROTOCOL.md) now route to the current Qwen3.8 program. Previous full texts are retained under [history](docs/history/). The [Qwen3.6 engineering text](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.md) and [Word snapshot](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.docx) are historical and cannot override the current plan.
 
-## Adapter evaluation and RL implementation status
+No new model training or benchmark result is asserted by this documentation/configuration revision.
 
-The active program requires a real, independently checked RL lifecycle before training on the target checkpoint. The existing `scripts/train_qwen_lora.py` performs supervised next-token training and must not be used as the RL path. LoRA is the adaptation mechanism; it does not by itself determine whether training is supervised or reinforcement learning.
-
-For a separately produced, authenticated adapter, the existing one-shot evaluator can check a verified development/test manifest:
-
-```bash
-python -m pip install -e '.[qwen]'
-python scripts/rollout_qwen.py \
-  --model /path/to/pinned/Qwen3.6-35B-A3B \
-  --adapter /path/to/authenticated/rl-adapter \
-  --data /path/to/verified/test.jsonl
-```
-
-This entry point is not the full benchmark harness. It rejects non-development/test records and counts malformed outputs as failures. Resolve model revision, runtime, memory, adapter attachment, and dependencies on the actual device.
-
-The R&D plan specifies untouched-base/adapter comparisons under no tools, identical retrieval, the same single-agent harness, and the same bounded worker system. Named suites are Qiskit HumanEval, QHackBench, ScienceAgentBench, LiveCodeBench, and IFEval, alongside sealed research tasks. Official protocols and tool-enabled variants have separate scores. No new training or benchmark result is asserted by this documentation update.
-
-## Research specification
-
-- [Governing RL-only R&D plan](docs/LEARNING_TO_CLARIFY_RD_PLAN.md)
-- [Metacognitive RL curriculum, generation prompts, and evaluation protocol](docs/METACOGNITIVE_RL_PROTOCOL.md)
-- [Anti-memorization objective and primitive/method boundary](docs/LEARNING_TO_CLARIFY_RD_PLAN.md#14-anti-memorization-contract)
-- [Paired anti-memorization measurements](docs/METACOGNITIVE_RL_PROTOCOL.md#81-anti-memorization-measurements)
-- [Current engineering specification](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.md)
-- [Historical Word specification snapshot](docs/Qwen36_Quantum_Posttraining_Research_Spec_EN.docx)
-
-The proposed research methods remain hypotheses until the preregistered comparisons and independent evaluations are run.
+See the [plan validation record](docs/qwen38/PLAN_VALIDATION.md) for checks executed on this update and their limits.
