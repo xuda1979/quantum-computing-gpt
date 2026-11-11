@@ -146,3 +146,20 @@ release/<artifact-id>/
 Large/private data and checkpoint files can be referenced through controlled durable storage with verified hashes and access instructions; do not place secrets in Git. Retain the last known-good artifact and state exact rollback/load procedure. Save unmerged adapter as the source artifact. Merged, quantized, different-engine or different-base derivatives need distinct identities and re-evaluation.
 
 Fresh-process smoke must load the pinned base plus adapter, verify attachment, generate with the declared template/tools, pass selected public/authorized fixtures, and reproduce report checks. Test packaging against an explicit file list and hash every file. The artifact tested must be the artifact delivered. Mark each claim MEASURED, PROJECTED, MISSING or PROPOSED; record engineering readiness, research improvement, IBM aspiration and frontier aspiration separately.
+
+## 11. Cognitive mechanism diagnostics and conditional gates
+
+Use the exact definitions in the [cognitive protocol](COGNITIVE_CORE_PROTOCOL.md) with fresh paired roots, unchanged task verifiers and matched controls. Keep the release co-primary endpoints, statistical policy and retention margins above unchanged. The following diagnostics become additional prerequisites for a claim about that particular mechanism; they cannot replace verified research completion.
+
+| Mechanism | Required report and check before claiming improvement |
+| --- | --- |
+| World robustness | Paired canonical-minus-mutated gap, absolute accuracy in both worlds, treatment-control differences and root-cluster uncertainty. A near-zero gap with both accuracies low fails to establish robustness. |
+| Crux selection | First-probe hit and hit-plus-final-success among all eligible acquisition-needed episodes, with independently authored decisive-probe sets. Missing/invalid/no probe is a miss; ambiguous oracle labels remain unmeasurable with full counts. Test high-divergence irrelevant probes and low-divergence useful confirmations. |
+| Toy falsification | Independently executed probe/interpretation, boundary cases and original full-contract completion. Report unsupported extrapolation from small N as a failure. |
+| Evidence folding | Constraint/contradiction preservation, pointer recovery, cache/recurrent reset and exact per-turn replay. Compare equal-budget generic summary and full-context conditions; report fresh continuation success. |
+| Efficiency | Completion at fixed total processed-input and generated-token budgets, including rereads, refills, branches, scorer/tool calls, wall/device cost and peak context. Accuracy per 1,000 active tokens is only an optional descriptive ratio. |
+| Hybrid allocation | Exact module/rank/trainable-count inventory, zero-effect initialization, gradient/cache parity and matched data/reward/parameter-budget comparisons, with measured retention and memory/latency |
+
+Freeze eligible roots, outcome/action catalogues, scorer validity fixtures, normalization, missingness rules, minimum independent sample sizes and practical margins using development-only power/cost analysis before launching the arm. Record unsupported/missing diagnostics as UNKNOWN; do not retrospectively narrow denominators to successful episodes. Claim shaping or curriculum improvements only against an otherwise identical outcome-only or existing-R1 control, respectively.
+
+For the new private diagnostics, gold targets, counterfactual histories and hidden decisive-probe labels remain in the scoring service. Audit actor/sampler isolation, answer-format sensitivity and reference-model mistakes. Reference-likelihood change is a proxy rather than mutual information; its increase is not a release criterion. Freeze diagnostic coverage and count its full costs in both compared arms. All mechanism and target-model capability results remain UNKNOWN until actually measured.
