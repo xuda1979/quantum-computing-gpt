@@ -1,0 +1,86 @@
+{
+  "$schema": "cognitive_contract.schema.json",
+  "schema_version": "qwen38-cognitive-planning-v1",
+  "status": "planning",
+  "model_repo_id": "Qwen/Qwen3.8-27B",
+  "training_route": "rl_only_sapo",
+  "teacher_imitation_enabled": false,
+  "experiment": {
+    "arm": "disabled",
+    "matched_control_id": null,
+    "parent_contract_sha256": null,
+    "measurement_sha256": null
+  },
+  "arms": {
+    "crux_observability": false,
+    "world_mutation": false,
+    "toy_probe": false,
+    "evidence_folding": false,
+    "crux_reward": false,
+    "frontier_sampling": false,
+    "hybrid_targets": false
+  },
+  "world_mutation": {
+    "fraction": 0.5,
+    "paired_root_split": true,
+    "sandbox_only": true
+  },
+  "crux_metrics": {
+    "first_probe_crux_hit_required": true,
+    "action_catalogue_required": true,
+    "likelihood_proxy": "length_normalized_reference_loglik_delta",
+    "claim_mutual_information": false,
+    "max_counterfactual_pairs": 2
+  },
+  "toy_probe": {
+    "max_qubits": 3,
+    "max_wall_seconds": 2.0,
+    "falsifiable_prediction_required": true,
+    "boundary_validation_required": true
+  },
+  "action_cost_model": {
+    "basis": "measured_weighted_normalized_resources",
+    "universal_strict_order": false
+  },
+  "evidence_folding": {
+    "token_cap": 150,
+    "protect_task_constraints": true,
+    "source_pointers_required": true,
+    "contradictions_required": true,
+    "rebuild_context": true,
+    "reset_recurrent_state": true,
+    "replay_exact_context": true,
+    "eviction_after_validation_only": true,
+    "overflow_policy": "retain_and_refetch_or_fail"
+  },
+  "crux_reward": {
+    "enabled": false,
+    "estimator": "bounded_success_bonus",
+    "terminal_reward": "verified_terminal_binary",
+    "signed_advantage_multiplication": false,
+    "max_abs_shaping": 0.05
+  },
+  "frontier_sampling": {
+    "uniform_exploration_floor": 0.1,
+    "final_test_feedback": false,
+    "unreachable_tasks": "diagnose_and_explore",
+    "cost_accounting": "all_rollout_and_verifier_calls"
+  },
+  "hybrid_targets": {
+    "inventory_required": true,
+    "base_frozen": true,
+    "trainable_ffn": false,
+    "module_paths": []
+  },
+  "deferred": {
+    "ffn_compression": false,
+    "smaller_student": false,
+    "mtp_value_head": false
+  },
+  "budgets": {
+    "pilot_actor_token_cap": 8000000,
+    "episode_actor_token_cap": 8192,
+    "active_context_token_cap": 16384,
+    "max_tool_calls": 8
+  }
+}

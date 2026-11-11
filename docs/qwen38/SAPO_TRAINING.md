@@ -40,6 +40,8 @@ An episode can have several independently reconstructed turn contexts. Compute e
 
 Implement a versioned context policy before long episodes: reserve the current task/constraints, remaining budget, active claim/dependency ledger, unresolved contradictions and artifact IDs; then add relevant source/method spans and recent tool exchanges. Reserve at most 2,048 generated tokens per short decision and 4,096 per long decision, within the aggregate episode caps. Retrieve older receipts by ID when needed. Deterministic selection and any generated summary must be recorded; actor-written summaries count as generated actor tokens. Never remove a mandatory constraint silently. If the protected state plus generation headroom cannot fit, use a declared compaction action or terminate with the contract's budget status. Generation and training consume exactly the same selected context. Reset scratch and episodic memory between roots; reusable method memory excludes solved-test artifacts.
 
+For the optional [evidence-folding arm](COGNITIVE_CORE_PROTOCOL.md), retain all immutable receipts, validate source pointers/constraints/contradictions and record exact post-fold token IDs before eviction. Discard both attention KV caches and recurrent/DeltaNet state and prefill the selected context; otherwise the supposedly evicted observation can remain in hidden state. Fold tokens are actor tokens where originally generated, and context tokens when inserted into later turns. Test fresh-process reconstruction at each fold boundary.
+
 For hybrid recurrent models, prove reset between episodes, full-forward versus incremental-cache agreement, padding/packing isolation, and correct gradient propagation. Never reuse another episode's recurrent state. Long-context support on a model card does not establish affordable or correct long-context RL.
 
 ## 3. Exact SAPO objective
@@ -158,3 +160,13 @@ On a crash, inspect the actual job and committed state. Discard incomplete check
 ## 9. Required training report
 
 Report planned/consumed/updated/quarantined groups; nonzero-advantage groups; actual optimizer updates and actor tokens; raw successes; reward and independent-dev curves; gradients/adapter movement; probability/KL/entropy diagnostics; failures/truncation; source/family/mixture/exposure distributions; runtime/device hours; teacher/verifier/tool/evaluation cost; and resume events. Distinguish measured, missing and projected quantities. Lower training loss or higher reward without frozen dev improvement is not sufficient for promotion.
+
+## 10. Proposed crux and hybrid experiments
+
+Follow the [cognitive protocol](COGNITIVE_CORE_PROTOCOL.md) for independently valid counterfactual observations, finite-catalogue normalized JSD, private length-normalized reference-likelihood diagnostics, action routing, fold replay and one-factor controls. The likelihood diagnostic is not mutual information. Neither a large divergence nor a negative likelihood change alone establishes probe quality or wasted reasoning.
+
+Keep binary terminal rewards and the exact loss above unchanged in the initial arms. A later reward-only child may use `R_i=correct_i + correct_i*epsilon*z_i`, with independently frozen `z_i` in [0,1] and epsilon at most 0.05. Failures remain zero, successes remain [1,1.05]. Recompute whole-group statistics and select temperatures from the resulting detached advantages. Do not multiply signed scores and advantages, introduce token-local credit implicitly, or add another importance ratio. Corrupt/missing required reward evidence leaves the group unresolved; it cannot become a favorable zero-cost sample.
+
+The v1 baseline run schema intentionally cannot launch this changed reward. The cognitive sidecar describes a proposed study, including matched control and parent/measurement hashes; a tested production resolver and new resolved child contract must express the exact scorer and training objective before any launch. Counterfactual/reference and fold/refetch costs share the aggregate study budget with both compared arms.
+
+For asymmetric hybrid targets, inventory real modules and supported gradients rather than hardcoding the feedback's gate names or layer count. Compare with the baseline allocation at matched trainable-parameter budgets and total cost. FFNs remain frozen in the baseline; this is not a guarantee against memorization. Keep compression, smaller students and MTP value heads out of the active adapter run.

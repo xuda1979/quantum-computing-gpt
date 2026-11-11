@@ -10,10 +10,12 @@ The [governing R&D plan](docs/QWEN38_27B_ADAPTER_RD_PLAN.md) is the current auth
 | --- | --- |
 | [Data generation](docs/qwen38/DATA_GENERATION.md) | Sources, ancestry splits, diverse quantum/math/physics/research environments, independent references and mutants, private state, task and episode records, optional verified SFT dataset study |
 | [SAPO training](docs/qwen38/SAPO_TRAINING.md) | Exact loss, behavior/reference policies, token masks, LoRA targets, hardware probes, short/long stages, health gates and transactional resume |
+| [Crux finding and compact research state](docs/qwen38/COGNITIVE_CORE_PROTOCOL.md) | Feedback decisions, toy falsification, coherent world interventions, evidence folding, conservative crux diagnostics/reward and seven isolated experiment arms |
 | [Evaluation-driven question balance](docs/qwen38/ADAPTIVE_MIXTURE.md) | Development skill diagnostics, dependencies, bounded mixture changes, coverage floors and a fixed-mixture comparison |
 | [Evaluation and release](docs/qwen38/EVALUATION_RELEASE.md) | IBM Standard/Hard, quantum/math/physics/agent suites, fresh private tests, native/tool comparisons, statistics, complete denominators and numerical adapter package |
 | [Future Code runbook](docs/qwen38/FUTURE_CODE_RUNBOOK.md) | Implementation DAG, acceptance tests, existing versus planned commands, automation and recovery |
 | [Planning JSON](configs/qwen38/rd_contract.example.json) / [JSON Schema](configs/qwen38/rd_contract.schema.json) | Explicit starting settings and required resolved identities; the example intentionally cannot launch training |
+| [Cognitive planning JSON](configs/qwen38/cognitive_contract.example.json) / [schema](configs/qwen38/cognitive_contract.schema.json) | Disabled-by-default experimental sidecar; validates one changed factor, lineage, evidence protections and budgets, never training readiness |
 
 The primary route is **RL-only SAPO with no additional initial project SFT**. A supervised data-generation comparison is documented separately and disabled. The controller may rebalance training questions from permitted development evaluations; final-test feedback remains outside that loop. Full IBM coverage and frontier-model competitiveness are aspirations that require complete measurements.
 
@@ -25,19 +27,23 @@ The primary route is **RL-only SAPO with no additional initial project SFT**. A 
 - Property tests for optional interval-surrogate ideas and a controlled-phase witness.
 - Synthetic 100,000-record data-plumbing stress validation.
 - Legacy supervised Qwen training and one-shot rollout utilities.
+- Executable validation of baseline and cognitive planning contracts, with negative tests for incompatible objectives, mixed factors, evidence loss, lineage and budgets.
 
 **Not implemented by this plan update:** the production Qwen3.8 SAPO trainer, multi-turn research environment service, adaptive-mixture controller and full benchmark/release pipeline. The runbook specifies their interfaces and acceptance work. Existing CPU success does not establish language-model training, target-device support, generalization, or new benchmark scores. The legacy supervised utility must not be used as the active RL path.
 
 ## Reproduce existing CPU fixture checks
 
 ```bash
-python -m pip install -e .
+python -m pip install -e '.[test]'
+python scripts/validate_cognitive_contract.py
 python -m unittest discover -s tests -v
 python scripts/validate_research_ideas.py --trials 10000
 python scripts/validate_larger_scale.py --roots 10000 --variants-per-root 10 --output runs/scale-validation
 ```
 
 These commands exercise small exact/synthetic fixtures. The 16 related circuit cases and CPU classifier are insufficient for research capability claims. Historical [validation](docs/RESEARCH_VALIDATION_REPORT.md) and [smoke](docs/SMOKE_TEST_REPORT.md) reports retain their original scope.
+
+The planning validator returns `PLANNING_VALID` with `training_authorized=false`. `--require-resolved` exits nonzero. Even an enabled experimental sidecar describes a proposed child study; implementation, actual identities, runtime checks and a new resolved child contract are still required. The default keeps binary-reward RL, the official 27B base and all seven experimental factors disabled. Compression, a smaller student and teacher-trace imitation are outside this route.
 
 The old `train_qwen_lora.py` performs supervised next-token training; `rollout_qwen.py` is a legacy one-shot gate-list evaluator. Neither is the new training/evaluation service. Resolve actual Qwen3.8 model classes, processor/template, hybrid-state kernels, LoRA targets and driver/dependency locks before real target training. CUDA/Ascend availability and inference support must be verified on the assigned runtime.
 

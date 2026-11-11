@@ -15,3 +15,11 @@ The adapter supplies candidate responses during rollout. The harness supplies th
 | Reward and evaluation | Trusted verifier | PASS / FAIL / VOID / UNKNOWN and evidence | Yes for eligible training groups; sealed test remains evaluation-only |
 
 The included exact one-qubit generator is a pipeline fixture, not a research benchmark. Its 16 examples test code paths and file contracts. They are too small and too related to support generalization claims or meaningful Qwen training results.
+
+## Proposed cognitive environment boundary
+
+Apply the [current cognitive protocol](qwen38/COGNITIVE_CORE_PROTOCOL.md) in a separate versioned research environment. Its action/probe/fold fields do not extend the legacy one-qubit Task format implicitly. Untrusted crux statements, branch predictions and folded evidence cannot assign their own relevance, validity or reward. The verifier owns decisive-probe labels and gold-reference diagnostics; only permitted scalar feedback can cross into training.
+
+World transformations update a sandbox's public documentation, tools, hidden state and independent oracle consistently. Group canonical/mutated siblings by ancestry before splitting. Exclude benchmark-derived solutions, private seeds, oracle paths and diagnostic counterfactual answers from actor search. A correct direct answer from supplied premises remains valid; lack of a tool call is not itself hallucination.
+
+Keep immutable full receipts when folding active context. Validate provenance, mandatory constraints and contradictions before eviction, then reset both attention caches and recurrent state and prefill the recorded new context. Tiny probe success does not satisfy a larger scientific contract without its required proof or full-size checks.

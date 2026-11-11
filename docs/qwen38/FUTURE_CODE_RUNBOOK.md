@@ -1,6 +1,6 @@
 # Future Code implementation and execution runbook
 
-Follow [the governing plan](../QWEN38_27B_ADAPTER_RD_PLAN.md), [data](DATA_GENERATION.md), [training](SAPO_TRAINING.md), [adaptive mixture](ADAPTIVE_MIXTURE.md), and [evaluation](EVALUATION_RELEASE.md). The target is exactly `Qwen/Qwen3.8-27B`. This PR is a specification/configuration update; it does not contain a production SAPO trainer. Complete implementation gates before issuing the planned commands below.
+Follow [the governing plan](../QWEN38_27B_ADAPTER_RD_PLAN.md), [data](DATA_GENERATION.md), [training](SAPO_TRAINING.md), [adaptive mixture](ADAPTIVE_MIXTURE.md), [cognitive protocol](COGNITIVE_CORE_PROTOCOL.md), and [evaluation](EVALUATION_RELEASE.md). The target is exactly `Qwen/Qwen3.8-27B`. This update adds a planning validator, not a production SAPO trainer. Complete implementation gates before issuing the planned commands below.
 
 ## 1. Durable control state
 
@@ -34,6 +34,20 @@ Do not derive completion solely from narrative reports. Reconcile state with rea
 | T12 | T11 | Sealed evaluation, report, numerical release package | Complete statistics/denominators, fresh-load smoke, manifest identity, honest aspiration status |
 
 Build narrow slices in dependency order. Data and evaluator engineering can proceed while hardware/download dependencies are blocked. Do not wait for thousands of tasks before testing real token/reward/checkpoint wiring. The missing trainer is a work item, not a reason to run the legacy SFT script.
+
+Optional cognitive implementation tasks follow the same gates. T13–T19 extend production research interfaces; do not overload the legacy one-qubit fixture contracts or reinterpret old scores. Offline data/scorer fixtures can be built early, but target-model treatments wait for P0–P4 and a matched interactive parent.
+
+| ID | Dependencies | Write scope / required output | Production-path acceptance evidence |
+| --- | --- | --- | --- |
+| T13 | T01,T03,T05 | Research contracts and public/private llm boundary: crux/action/pivot records, cost-aware routing, CLARIFY alias | Direct tasks need no probe; multiple cruxes valid; invalid actions rejected; simulated clarification deterministic; private labels excluded |
+| T14 | T02,T03,T04 | Separate world transformation registry beside generator/quantum | Document/tool/oracle agreement; physical-validity and identifiability checks; canonical/mutated/irrelevant siblings cannot cross partitions; wrong-world guesses rejected |
+| T15 | T03,T13 | Bounded PROBE_TOY_CASE tool profile and receipts | Timeout/memory/output enforcement; fabricated receipts rejected; counterexample interpretation checked; small-case agreement cannot satisfy unsupported general-N claim |
+| T16 | T05,T09,T13 | New interactive rollout context builder and folding transactions | Invalid/missing pointers and lost contradictions block eviction; caches and recurrent state reset; pinned-tokenizer cap; fresh-process exact-context/replay parity; overflow/refetch charged |
+| T17 | T07,T13 | Private pivotal-sensitivity / reference-likelihood diagnostic service | Normalized common action support; infeasible outcome rejected; identical prefixes; no downstream orphan text; irrelevant/misleading evidence and answer-form sensitivity controls; actor cannot access gold |
+| T18 | T06,T08,T17 | Separate bounded reward and useful-probe curriculum children | One changed factor; independent reward-bound/sign/group/temperature tests; scorer failures quarantine groups; before-dispatch probabilities, exploration, lag and complete cost ledger |
+| T19 | T05,T07 | Hybrid module/rank allocation comparison | Inventory-derived targets, matched trainable budgets, gradient/probability/cache checks, base/visual/auxiliary freeze and real retention/cost evidence |
+
+For T16, actor folds get loss only where originally generated; later reinserted state is context. For T18, retain whole-episode SAPO credit in the first reward study; token-local Crux-SAPO needs a separate estimator and new acceptance tests. Compression, student distillation and MTP value heads are not dependencies for this program.
 
 ## 3. Planned command surface: implement before use
 
@@ -73,13 +87,18 @@ python -m quantum_posttrain.rd release package --config runs/qwen38/release.cont
 Existing commands available now for **CPU fixture validation only**:
 
 ```bash
-python -m pip install -e .
+python -m pip install -e '.[test]'
+python scripts/validate_cognitive_contract.py
 python -m unittest discover -s tests -v
 python scripts/validate_research_ideas.py --trials 10000
 python scripts/validate_larger_scale.py --roots 10000 --variants-per-root 10 --output runs/scale-validation
 ```
 
 These commands do not train Qwen3.8 or certify its runtime. Do not call `train_qwen_lora.py` for the active RL route. Do not advertise the old `rollout_qwen.py` as the new benchmark service.
+
+The validator is implemented now. It validates both baseline and cognitive planning schemas plus cross-contract sums, one-factor identity, budgets and protected-state requirements. It rejects duplicate/nonfinite JSON, unknown fields, objective substitutions, multiple enabled factors, absent lineage/control, unsafe folding, final-test feedback and signed score multiplication. `--require-resolved` must fail; even syntactically valid hashes authenticate no artifacts.
+
+The [sidecar example](../../configs/qwen38/cognitive_contract.example.json) uses an aggregate eight-million actor-token planning ceiling across the proposed treatment and its matched control, within the parent pilot ceiling. Diagnostic/reference generation is charged to that aggregate account, with all processed input, tools, wall/device time recorded separately. It is not additional spending permission. A production child resolver must bind the exact task/action/scorer/context versions, one-factor settings, parent/measurement hashes and a real suballocation; it cannot launch a changed objective through the unchanged binary-reward v1 schema.
 
 ## 4. Automatic stage procedure
 
@@ -123,6 +142,7 @@ Capture incident ID, exact command/contract, code/runtime/data/model hashes, fir
 - SAPO derivative, reference separation, actor masks, distributed scaling and probability reconstruction pass independent checks.
 - Target-model adapter movement and real checkpoint/resume are measured; all consumed groups have at-most-once semantics.
 - Question balancing uses permitted development inputs, bounded changes, coverage/exposure caps and logged controller state.
+- Any enabled cognitive treatment has independently checked crux/probe labels, coherent world contracts, private diagnostic isolation, exact fold/cache replay and a matched one-factor control. Missing mechanism evidence blocks that mechanism's claim.
 - Complete native/adapted and short/long denominators, uncertainty, costs and missing cells are reported.
 - A numerical adapter and tested inference configuration are delivered with reproducible lineage and honest claim status.
 

@@ -1,6 +1,6 @@
 # Data generation, admission, and interactive environments
 
-Applies to [the Qwen3.8-27B governing plan](../QWEN38_27B_ADAPTER_RD_PLAN.md), revision 6.0. This is the implementation specification for the data factory. The existing one-qubit JSONL format is only a fixture; do not present it as the schema below.
+Applies to [the Qwen3.8-27B governing plan](../QWEN38_27B_ADAPTER_RD_PLAN.md), revision 7.0. This is the implementation specification for the data factory. The existing one-qubit JSONL format is only a fixture; do not present it as the schema below.
 
 ## 1. Storage boundaries and record identities
 
@@ -179,9 +179,13 @@ Every group begins from the same task/initial world. Generate G independent acto
 
 The observable actor state contains the task, relevant public source spans, a claim ledger, known/unknown assumptions, checked artifacts, remaining budget, and tool history. Use actions such as `READ_SOURCE`, `SEARCH`, `RUN_CODE`, `SIMULATE`, `CHECK_PROOF`, `REVISE_CLAIM`, `WRITE_ARTIFACT`, `ASK`, and `FINISH`, each mapped to an actual tool schema. A short checked derivation can be an action. Do not require invented rival hypotheses or needless retrieval for an already settled direct task.
 
+The proposed [cognitive extension](COGNITIVE_CORE_PROTOCOL.md) adds explicit DEDUCE, PROBE_TOY_CASE and FOLD_EVIDENCE records, with CLARIFY as the ASK alias. Register public fields, tool mappings, private labels and versioned replay semantics before enabling an arm. A crux is a checkable decision bottleneck, not a mandatory style of explanation.
+
 Claim states are `UNTESTED`, `SUPPORTED`, `REFUTED`, `CONFLICTING`, or `UNRESOLVED`, with evidence and dependency IDs. Revision invalidates downstream claims that depended on the refuted premise. External memory stores source spans, method preconditions, experiment receipts, and open obligations, rather than unqualified solved-task scripts.
 
 `ASK` is a simulated, bounded information-acquisition action during training; it must have a defined answer source and cost. Do not make automatic training depend on an unanswered live human question. Answerable-task abstention fails; justified insufficiency can pass only where that is the task's true completion contract.
+
+Distinguish user-latent intent from accessible environmental facts. A clarification is avoidable only when an authorized retrieval/probe could resolve the same gap within the declared budget. Freeze resource normalization rather than imposing a strict scratchpad/search/simulation/human cost ladder on all tasks.
 
 Each step receipt records exact input/output bytes, tool/schema/image versions, action and artifact IDs, start/end times, return status, resource usage, and hashes. Each episode additionally records exact model-input token IDs, generated token IDs, per-token behavior log probabilities, actor masks, termination type, checkpoint ID, all verdict components and total cost. See the training specification for masking and grouping rules.
 
@@ -227,3 +231,11 @@ If the separate SFT-C arm is explicitly enabled, its initial bounded profile is 
 Write `data_report.json` with source/partition/family/skill counts; rejection reasons; overlap checks; reference/mutant outcomes; reviewed semantic samples; private-boundary tests; token/length distributions; estimated generation/verification cost; and unresolved items. Reconcile `proposed = admitted + rejected + review_required` and `admitted = train + dev_tune + dev_calibration + sealed_test + public_benchmark` over unique IDs, with quarantine counted before admission. State explicitly when an item is a view rather than an independent record.
 
 Fail admission on a partition conflict, a surviving required mutant, a missing reference/hash, or actor access to private data. Freeze the accepted manifest and its hash before any rollout update. New training data can enter only through a new versioned manifest and a child/continuation contract that preserves the sealed evaluation boundary.
+
+## 13. World interventions and cognitive records
+
+The [cognitive protocol](COGNITIVE_CORE_PROTOCOL.md) specifies a separate transformation registry for sandbox APIs, hardware topology, noise tables and declared conventions. Build canonical/intervened/irrelevant siblings only after root/ancestry partitioning. Preserve physical validity, identifiability and document/tool/oracle agreement. Keep world hashes, transformation family/version/seed, authoritative source hashes, sibling IDs and independent reference/mutant receipts in the admission record; expose only the permitted public projection.
+
+The proposed mutation treatment starts at 50% of eligible training instances, disabled by default and compared with a zero-mutation parent. It is not a change to the existing one-qubit generator or stored JSONL partitions. Hold out transformation families/compositions and sources, not just numerical parameters. Direct answers remain legitimate when the supplied information suffices; do not assign hallucination penalties merely because search was unused.
+
+The research episode schema must also capture crux/claim/action/receipt dependencies, falsifiable toy predictions, pivot validity, fold source spans and exact context/cache boundaries. Independently author decisive-probe sets for diagnostic tasks before observing policy outputs. Keep gold answers and counterfactual scorer histories private. Teacher-generated crux/fold traces are not imitation targets in the active RL route. The planning sidecar validates intended constraints only; production record schemas, environments and privacy checks still require implementation.

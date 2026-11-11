@@ -1,6 +1,6 @@
 # Qwen3.8-27B quantum research adapter: governing R&D plan
 
-Revision 6.0 · 8 November 2026 · Execution owner: Future Code
+Revision 7.0 · 11 November 2026 · Execution owner: Future Code
 
 **Base checkpoint: `Qwen/Qwen3.8-27B`, official post-trained release.** Resolve an immutable revision before use. No Qwen3.6/3.5 checkpoint, similarly named community model, or different parameter size may be substituted. This document supersedes the earlier Qwen3.6 plans. It specifies work to implement and execute; it does not report a trained adapter or new benchmark results.
 
@@ -25,12 +25,14 @@ Future Code should implement missing components, execute the cheapest informativ
 | 5 | [Future Code runbook](qwen38/FUTURE_CODE_RUNBOOK.md) | Dependency graph, interface contracts, commands, recovery, acceptance checks |
 | 6 | [Evaluation-driven question balance](qwen38/ADAPTIVE_MIXTURE.md) | Development skill feedback, prerequisite transfer, bounded mixture updates and fixed-mixture control |
 | 7 | [Planning contract](../configs/qwen38/rd_contract.example.json) and [schema](../configs/qwen38/rd_contract.schema.json) | Machine-readable starting values and explicitly unresolved runtime identities |
+| 8 | [Crux finding and compact research state](qwen38/COGNITIVE_CORE_PROTOCOL.md) | Observable bottlenecks, cost-aware actions, toy falsification, world interventions, evidence folding, hybrid experiments and corrected diagnostics |
+| 9 | [Cognitive planning sidecar](../configs/qwen38/cognitive_contract.example.json) and [schema](../configs/qwen38/cognitive_contract.schema.json) | Disabled experimental factors, single-factor/control/lineage constraints, bounded settings and planning-only validation |
 
-Precedence is: current user objective and resource authorization → a resolved, immutable run contract consistent with this plan → this plan and its five operational specifications. Historical documents are background only. A run contract cannot lower a frozen acceptance threshold, change sealed tests, or relabel SFT as RL. A changed scientific factor creates a child experiment with its own contract and comparison.
+Precedence is: current user objective and resource authorization → a resolved, immutable run contract consistent with this plan → this plan and its operational specifications. Historical documents are background only. A run contract cannot lower a frozen acceptance threshold, change sealed tests, or relabel SFT as RL. A changed scientific factor creates a child experiment with its own contract and comparison. The cognitive sidecar is planning-only: it cannot override the binary-reward v1 run contract or turn an unimplemented experiment into a launchable run. Its production resolver must create and validate a new child contract for any changed training objective or interface.
 
 ## 3. Actual repository baseline
 
-Reviewed source: `16259e3c7867e625c7b18e385e3c4e71710198f6`.
+Reviewed source: `468bcabef3a9f72bbef43c5ddd0f981fb74998ef` (the current main branch at this update). The existing Python training/rollout implementation remains the same legacy fixture path.
 
 | Present component | Actual capability | Required next implementation |
 | --- | --- | --- |
@@ -39,6 +41,7 @@ Reviewed source: `16259e3c7867e625c7b18e385e3c4e71710198f6`.
 | `qwen_training.py`, `train_qwen_lora.py` | Legacy supervised one-shot utility | Production SAPO loop, interactive rollout, actor masking, behavior-policy receipts, atomic resume |
 | `rollout_qwen.py` | One-shot gate-list evaluation | Qwen3.8 processor/template integration and benchmark adapters |
 | CPU smoke/property/scale scripts | Harness plumbing and mathematical fixture checks | Real target-model forward/backward, device training, complete benchmark execution |
+| Cognitive planning validator added in this revision | Baseline/sidecar schema, factor isolation, lineage, budget and protected-state rejection tests | Actual environment, folding, diagnostics and trainer integrations; planning validation is not runtime evidence |
 
 Existing dependency minima are not a Qwen3.8 runtime lock. The old utility's model loader and CUDA/CPU handling do not certify the new hybrid architecture or Ascend training. Retain historical reports without changing their model identity or rebranding their scores.
 
@@ -65,6 +68,14 @@ Use these experiment identities; all start from the same base revision unless ex
 | SFT-C | Verified supervised responses/trajectories | Disabled methodological comparison; never silently added to the active RL route |
 
 Do not combine curriculum, reward, module targets, and optimizer changes in the first attributable experiment. Establish one-factor arms in the short-horizon setting before combining independently useful factors. R2 is compared with a control that sees the same interactive tasks and tools; a single-turn-to-multi-turn comparison alone cannot isolate the curriculum mechanism.
+
+### 4.1 Feedback-driven cognitive experiments
+
+Prioritize useful investigation over deliberate forgetting: identify consequential unknowns, choose among deduction/search/toy falsification/clarification, update source-linked claims, and retain compact working state. The [cognitive protocol](qwen38/COGNITIVE_CORE_PROTOCOL.md) specifies the action records, corrected formulas, quantum example, experiment arms and metrics. First implement observability and scorer fixtures; then test world interventions, toy-action structure and context folding separately on a matched interactive parent. Crux reward, useful-probe curriculum and asymmetric hybrid targets follow only after their prerequisites pass.
+
+All seven experimental factors are off in the example. Keep binary terminal SAPO as the control. Crux sensitivity uses a finite action catalogue; reference-answer likelihood change is a diagnostic proxy, not mutual information. A proposed reward treatment uses a bounded success-only episode bonus, avoiding signed advantage multiplication. Context eviction requires rebuilding both attention and recurrent state. No live human reply is required by training clarification.
+
+Hold the official 27B base and RL-only objective fixed. Freezing FFNs does not prevent memorization elsewhere; SVD probes do not establish separable factual/reasoning circuits or a smaller deployed footprint. FFN compression, smaller students, teacher-trace distillation and MTP value heads remain separately scoped future studies. Do not replace the requested numerical adapter with one of those studies.
 
 ## 5. Initial data and curriculum decisions
 

@@ -1,0 +1,774 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/xuda1979/quantum-computing-gpt/configs/qwen38/cognitive_contract.schema.json",
+  "title": "Qwen3.8 cognitive experiment planning sidecar; never a training authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "const": "cognitive_contract.schema.json"
+    },
+    "schema_version": {
+      "const": "qwen38-cognitive-planning-v1"
+    },
+    "status": {
+      "const": "planning"
+    },
+    "model_repo_id": {
+      "const": "Qwen/Qwen3.8-27B"
+    },
+    "training_route": {
+      "const": "rl_only_sapo"
+    },
+    "teacher_imitation_enabled": {
+      "const": false
+    },
+    "experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "arm": {
+          "enum": [
+            "disabled",
+            "crux_observability",
+            "world_mutation",
+            "toy_probe",
+            "evidence_folding",
+            "crux_reward",
+            "frontier_sampling",
+            "hybrid_targets"
+          ]
+        },
+        "matched_control_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parent_contract_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "measurement_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "arm",
+        "matched_control_id",
+        "parent_contract_sha256",
+        "measurement_sha256"
+      ]
+    },
+    "arms": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "crux_observability": {
+          "type": "boolean"
+        },
+        "world_mutation": {
+          "type": "boolean"
+        },
+        "toy_probe": {
+          "type": "boolean"
+        },
+        "evidence_folding": {
+          "type": "boolean"
+        },
+        "crux_reward": {
+          "type": "boolean"
+        },
+        "frontier_sampling": {
+          "type": "boolean"
+        },
+        "hybrid_targets": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "crux_observability",
+        "world_mutation",
+        "toy_probe",
+        "evidence_folding",
+        "crux_reward",
+        "frontier_sampling",
+        "hybrid_targets"
+      ]
+    },
+    "world_mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fraction": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "paired_root_split": {
+          "const": true
+        },
+        "sandbox_only": {
+          "const": true
+        }
+      },
+      "required": [
+        "fraction",
+        "paired_root_split",
+        "sandbox_only"
+      ]
+    },
+    "crux_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "first_probe_crux_hit_required": {
+          "const": true
+        },
+        "action_catalogue_required": {
+          "const": true
+        },
+        "likelihood_proxy": {
+          "const": "length_normalized_reference_loglik_delta"
+        },
+        "claim_mutual_information": {
+          "const": false
+        },
+        "max_counterfactual_pairs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "first_probe_crux_hit_required",
+        "action_catalogue_required",
+        "likelihood_proxy",
+        "claim_mutual_information",
+        "max_counterfactual_pairs"
+      ]
+    },
+    "toy_probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_qubits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "max_wall_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 2
+        },
+        "falsifiable_prediction_required": {
+          "const": true
+        },
+        "boundary_validation_required": {
+          "const": true
+        }
+      },
+      "required": [
+        "max_qubits",
+        "max_wall_seconds",
+        "falsifiable_prediction_required",
+        "boundary_validation_required"
+      ]
+    },
+    "action_cost_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "const": "measured_weighted_normalized_resources"
+        },
+        "universal_strict_order": {
+          "const": false
+        }
+      },
+      "required": [
+        "basis",
+        "universal_strict_order"
+      ]
+    },
+    "evidence_folding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "token_cap": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "protect_task_constraints": {
+          "const": true
+        },
+        "source_pointers_required": {
+          "const": true
+        },
+        "contradictions_required": {
+          "const": true
+        },
+        "rebuild_context": {
+          "const": true
+        },
+        "reset_recurrent_state": {
+          "const": true
+        },
+        "replay_exact_context": {
+          "const": true
+        },
+        "eviction_after_validation_only": {
+          "const": true
+        },
+        "overflow_policy": {
+          "const": "retain_and_refetch_or_fail"
+        }
+      },
+      "required": [
+        "token_cap",
+        "protect_task_constraints",
+        "source_pointers_required",
+        "contradictions_required",
+        "rebuild_context",
+        "reset_recurrent_state",
+        "replay_exact_context",
+        "eviction_after_validation_only",
+        "overflow_policy"
+      ]
+    },
+    "crux_reward": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "estimator": {
+          "const": "bounded_success_bonus"
+        },
+        "terminal_reward": {
+          "const": "verified_terminal_binary"
+        },
+        "signed_advantage_multiplication": {
+          "const": false
+        },
+        "max_abs_shaping": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.05
+        }
+      },
+      "required": [
+        "enabled",
+        "estimator",
+        "terminal_reward",
+        "signed_advantage_multiplication",
+        "max_abs_shaping"
+      ]
+    },
+    "frontier_sampling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uniform_exploration_floor": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1
+        },
+        "final_test_feedback": {
+          "const": false
+        },
+        "unreachable_tasks": {
+          "const": "diagnose_and_explore"
+        },
+        "cost_accounting": {
+          "const": "all_rollout_and_verifier_calls"
+        }
+      },
+      "required": [
+        "uniform_exploration_floor",
+        "final_test_feedback",
+        "unreachable_tasks",
+        "cost_accounting"
+      ]
+    },
+    "hybrid_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inventory_required": {
+          "const": true
+        },
+        "base_frozen": {
+          "const": true
+        },
+        "trainable_ffn": {
+          "const": false
+        },
+        "module_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "inventory_required",
+        "base_frozen",
+        "trainable_ffn",
+        "module_paths"
+      ]
+    },
+    "deferred": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ffn_compression": {
+          "const": false
+        },
+        "smaller_student": {
+          "const": false
+        },
+        "mtp_value_head": {
+          "const": false
+        }
+      },
+      "required": [
+        "ffn_compression",
+        "smaller_student",
+        "mtp_value_head"
+      ]
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pilot_actor_token_cap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "episode_actor_token_cap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "active_context_token_cap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_tool_calls": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "pilot_actor_token_cap",
+        "episode_actor_token_cap",
+        "active_context_token_cap",
+        "max_tool_calls"
+      ]
+    }
+  },
+  "required": [
+    "$schema",
+    "schema_version",
+    "status",
+    "model_repo_id",
+    "training_route",
+    "teacher_imitation_enabled",
+    "experiment",
+    "arms",
+    "world_mutation",
+    "crux_metrics",
+    "toy_probe",
+    "action_cost_model",
+    "evidence_folding",
+    "crux_reward",
+    "frontier_sampling",
+    "hybrid_targets",
+    "deferred",
+    "budgets"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "crux_observability"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "crux_observability": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "crux_observability": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "world_mutation"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "world_mutation": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "world_mutation": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "toy_probe"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "toy_probe": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "toy_probe": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "evidence_folding"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "evidence_folding": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "evidence_folding": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "crux_reward"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "crux_reward": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "crux_reward": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "frontier_sampling"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "frontier_sampling": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "frontier_sampling": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment": {
+            "properties": {
+              "arm": {
+                "const": "hybrid_targets"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "hybrid_targets": {
+                "const": true
+              }
+            }
+          },
+          "experiment": {
+            "properties": {
+              "matched_control_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent_contract_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "measurement_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "arms": {
+            "properties": {
+              "hybrid_targets": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
